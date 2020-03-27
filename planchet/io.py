@@ -1,10 +1,12 @@
 import json
+import logging
 import os
 from typing import Dict, List, Iterator, Union
 
 import pandas as pd
 from pandas.io.parsers import TextFileReader
 
+from .util import red
 
 class CsvReader:
 
@@ -32,15 +34,21 @@ class CsvReader:
 class JsonlReader:
 
     def __init__(self, meta_data: Dict):
+        self.id_ = 0
         self.iter: Iterator = open(meta_data['input_file_path'])
 
     def __call__(self, batch_size: int):
         batch: List = []
-        for id_, line in enumerate(self.iter):
-            jsn: Union[Dict, List] = json.loads(line)
-            if len(batch) > batch_size:
-                break
+        for id_, line in enumerate(self.iter, start=self.id_):
+            try:
+                jsn: Union[Dict, List] = json.loads(line)
+            except json.JSONDecodeError as e:
+                logging.error(red(f'Could not parse JSON: {line}'))
+                continue
             batch.append((id_, jsn))
+            if len(batch) == batch_size:
+                break
+            self.id_ = id_ + 1
         return batch
 
 

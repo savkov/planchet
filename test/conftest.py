@@ -1,14 +1,20 @@
 import os
 
-
 from fastapi.testclient import TestClient
 import pytest
 import fakeredis
 
 from planchet import Job
 from planchet.io import CsvReader, CsvWriter
-from .const import TEST_JOB_NAME
+from planchet.client import PlanchetClient
+from .const import TEST_JOB_NAME, PLANCHET_HOST, PLANCHET_PORT
 from app import app, LEDGER
+
+
+@pytest.fixture(scope='session')
+def planchet_client():
+    url = f'http://{PLANCHET_HOST}:{PLANCHET_PORT}'
+    return PlanchetClient(url)
 
 
 @pytest.fixture()
@@ -23,8 +29,7 @@ def job_params():
 
 @pytest.fixture()
 def input_fp(data):
-    d = os.path.abspath(os.getcwd())
-    fp = f'{d}/input_file.csv'
+    fp = f'./input_file.csv'
     with open(fp, 'w') as fh:
         fh.write(data)
     yield fp
@@ -33,8 +38,7 @@ def input_fp(data):
 
 @pytest.fixture()
 def output_fp():
-    d = os.path.abspath(os.getcwd())
-    fp = f'{d}/output_file.csv'
+    fp = f'./output_file.csv'
     yield fp
     try:
         os.remove(fp)
@@ -66,25 +70,25 @@ def ledger():
 
 
 @pytest.fixture()
-def reader():
-    fp = 'tempfile.csv'
-    data = 'head1,head2\n' + '\n'.join([f'val{i}1,val{i}2' for i in range(30)])
-    with open('tempfile.csv', 'w') as fh:
-        fh.write(data)
-    metadata = {
-        'input_file_path': fp
-    }
-    yield CsvReader(metadata)
-    os.remove(fp)
+def live_ledger():
+    yield LEDGER
+    LEDGER.delete(f'JOB:{TEST_JOB_NAME}')
+    for key in LEDGER.scan_iter(f'{TEST_JOB_NAME}:*'):
+        LEDGER.delete(key)
 
 
 @pytest.fixture()
-def writer():
-    fp = 'tempfile-out.csv'
-    metadata = {'output_file_path': fp}
-    yield CsvWriter(metadata)
-    if os.path.exists(fp):
-        os.remove(fp)
+def reader(input_fp):
+    metadata = {
+        'input_file_path': input_fp
+    }
+    return CsvReader(metadata)
+
+
+@pytest.fixture()
+def writer(output_fp):
+    metadata = {'output_file_path': output_fp}
+    return CsvWriter(metadata)
 
 
 @pytest.fixture(scope='function')

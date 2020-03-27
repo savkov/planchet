@@ -1,5 +1,4 @@
 import json
-from random import shuffle
 
 from pydantic.typing import NoneType
 

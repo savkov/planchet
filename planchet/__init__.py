@@ -1,1 +1,2 @@
-from .core import Job
+from .core import Job  # noqa
+from .client import PlanchetClient  # noqa

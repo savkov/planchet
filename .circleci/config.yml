@@ -1,0 +1,110 @@
+version: 2
+
+prelude: &prelude
+  docker:
+  - image: circleci/python:3.6.8
+  working_directory: ~/planchet
+
+prepare_venv: &prepare_venv
+  run:
+    name: Create venv
+    working_directory: ~/planchet
+    command: python3 -m venv .venv
+
+save_venv: &save_venv
+  save_cache:
+    key: v1_pip-cache-{{ checksum "requirements.txt" }}-{{ checksum "test_requirements.txt" }}
+    paths:
+    - ".venv"
+
+restore_venv: &restore_venv
+  restore_cache:
+    keys:
+    key: v1_pip-cache-{{ checksum "requirements.txt" }}-{{ checksum "test_requirements.txt" }}
+
+setup_code_climate: &setup_code_climate
+  run:
+    name: setup code climate
+    command: |
+      curl -L -o cc-test-reporter https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
+      chmod +x cc-test-reporter
+      ./cc-test-reporter before-build
+
+upload_code_climate: &upload_code_climate
+  run:
+    name: upload coverage results
+    command: |
+      ./cc-test-reporter after-build -t coverage.py --exit-code $?
+
+only_master: &only_master
+  filters:
+    branches:
+      only:
+      - master
+
+not_master: &not_master
+  filters:
+    branches:
+      ignore:
+      - master
+
+workflows:
+  version: 2
+  planchet-flow:
+    jobs:
+    - prepare_env:
+        context: sasho
+    - lint:
+        context: sasho
+        requires:
+        - prepare_env
+        <<: *not_master
+    - test:
+        context: sasho
+        requires:
+        - prepare_env
+        <<: *not_master
+    - test-coverage:
+        context: sasho
+        requires:
+        - prepare_env
+        <<: *only_master
+
+jobs:
+  prepare_env:
+    <<: *prelude
+    steps:
+    - checkout
+    - *restore_venv
+    - *prepare_venv
+    - run: |
+        source .venv/bin/activate
+        make install-test
+    - *save_venv
+  test:
+    <<: *prelude
+    steps:
+    - checkout
+    - *restore_venv
+    - run: |
+        source .venv/bin/activate
+        make test
+  test-coverage:
+    <<: *prelude
+    steps:
+    - checkout
+    - *restore_venv
+    - *setup_code_climate
+    - run: |
+        source .venv/bin/activate
+        pip install coverage
+        make test
+    - *upload_code_climate
+  lint:
+    <<: *prelude
+    steps:
+    - checkout
+    - *restore_venv
+    - run: |
+        source .venv/bin/activate
+        make lint

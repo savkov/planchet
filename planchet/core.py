@@ -97,8 +97,7 @@ class Job:
         record = ledger.get(job_key)
         if not record:
             return
-        else:
-            record = json.loads(record.decode('utf8'))
+        record = json.loads(record.decode('utf8'))
         reader_name = record['reader_name']
         writer_name = record['writer_name']
         metadata = record['metadata']

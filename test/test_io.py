@@ -85,7 +85,7 @@ def test_csv_read(config):
         {
             'jsonl': '{"k1": "v1", "k2": "v2"\n{"k1": "v11", "k2": "v22"}',
             'batch_size': 2,
-            'exception': json.JSONDecodeError
+            'exception': None
 
         },
         {
@@ -245,7 +245,7 @@ def test_jsnl_write(config):
         },
     ],
 )
-def test_csv_read(config):
+def test_csv_read_advanced(config):
     file_path = 'temp.csv'
     metadata = {
         'output_file_path': config.get('file_path', file_path),

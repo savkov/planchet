@@ -70,12 +70,10 @@ def test_receive(client, job_params, metadata):
     items = json.loads(
         client.post(f'/serve?job_name={TEST_JOB_NAME}&batch_size=5').text
     )
-    print(items)
     response = client.post(
         f'/receive?job_name={TEST_JOB_NAME}&overwrite=false',
         json=items
     )
-    print(response.text)
     assert response.status_code == 200
 
 
