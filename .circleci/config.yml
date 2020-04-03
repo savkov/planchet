@@ -91,7 +91,7 @@ jobs:
     steps:
     - checkout
     - run: |
-        mkdir /data && mkdir /data/planchet-data
+        sudo mkdir /data && mkdir /data/planchet-data
         make login
         make build
         make tag-latest
