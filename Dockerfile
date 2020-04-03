@@ -1,4 +1,4 @@
-FROM quay.io/savkov/pandas
+FROM quay.io/savkov/alpine-pandas
 MAINTAINER "Sasho Savkov" <sasho.savkov@babylonhealth.com>
 
 VOLUME /data/planchet-data
