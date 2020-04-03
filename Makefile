@@ -10,7 +10,7 @@ clean:
 	find . -name ".coverage" -delete
 
 login:
-	docker login -p ${DOCKER_LOGIN} -u ${DOCKER_PASSWORD} quay.io
+	docker login -u ${DOCKER_LOGIN} -p ${DOCKER_PASSWORD} quay.io
 
 build:
 	docker build -t $(REPO)/$(NAME):$(VERSION) .
