@@ -92,7 +92,7 @@ jobs:
     - checkout
     - run: |
         sudo mkdir /data
-        sudo chown circleci
+        sudo chown circleci /data
         mkdir /data/planchet-data
         make login
         make build
