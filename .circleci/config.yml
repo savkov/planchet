@@ -96,7 +96,6 @@ jobs:
         make login
         make build
         make tag-latest
-        make tag-semver
         make test-docker
   push:
     <<: *prelude_machine
@@ -106,6 +105,7 @@ jobs:
           make login
           make build
           make tag-latest
+          make tag-semver
           make push
   test-coverage:
     <<: *prelude_docker
