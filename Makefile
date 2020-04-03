@@ -9,6 +9,9 @@ clean:
 	find . -name "*pyc" -delete
 	find . -name ".coverage" -delete
 
+login:
+	docker login -p $DOCKER_LOGIN -u $DOCKER_PASSWORD quay.io
+
 build:
 	docker build -t $(REPO)/$(NAME):$(VERSION) .
 
