@@ -93,6 +93,7 @@ jobs:
     steps:
     - checkout
     - run: |
+        make login
         make build
         make tag
         make test-docker
@@ -101,6 +102,7 @@ jobs:
     steps:
       - checkout
       - run: |
+          make login
           make build
           make tag
           make push
