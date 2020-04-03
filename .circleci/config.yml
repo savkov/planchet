@@ -73,6 +73,9 @@ workflows:
         requires:
         - prepare_env
         <<: *only_master
+    - push:
+        context: sasho
+        <<: *only_master
 
 jobs:
   prepare_env:
@@ -90,7 +93,17 @@ jobs:
     steps:
     - checkout
     - run: |
+        make build
+        make tag
         make test-docker
+  push:
+    <<: *prelude_machine
+    steps:
+      - checkout
+      - run: |
+          make build
+          make tag
+          make push
   test-coverage:
     <<: *prelude_docker
     steps:

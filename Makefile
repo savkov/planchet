@@ -43,15 +43,10 @@ release:
 	python setup.py sdist bdist_wheel &&\
 	twine upload dist/*
 
-tag-latest:
+tag:
+	docker tag $(REPO)/$(NAME):$(VERSION) $(REPO)/$(NAME):$(SEMVER_VERSION)
 	docker tag $(REPO)/$(NAME):$(VERSION) $(REPO)/$(NAME):latest
 
-tag-semver:
-	@if docker run -e DOCKER_REPO=savkov/$(NAME) -e DOCKER_TAG=$(SEMVER_VERSION) quay.io/savkov/tag-exists; \
-	    then echo "Tag $(SEMVER_VERSION) already exists!" && exit 1 ; \
-	else \
-			docker tag $(REPO)/$(NAME):$(VERSION) $(REPO)/$(NAME):$(SEMVER_VERSION); \
-			docker push $(REPO)/$(NAME):$(SEMVER_VERSION); \
-			docker tag $(REPO)/$(NAME):$(VERSION) $(REPO)/$(NAME):master; \
-			docker push $(REPO)/$(NAME):master; \
-	fi
+push:
+	docker push $(REPO)/$(NAME):$(SEMVER_VERSION); \
+	docker push $(REPO)/$(NAME):latest;
