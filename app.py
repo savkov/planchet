@@ -28,6 +28,8 @@ def _load_jobs(ledger) -> Dict:
             jobs[job_name] = Job.restore_job(job_name, job_key, ledger)
         except json.JSONDecodeError:
             logging.error(f'Could not restore job: {job_key}')
+        except FileNotFoundError as e:
+            logging.error(f'Could not restore job: {job_key}; {e}')
     return jobs
 
 

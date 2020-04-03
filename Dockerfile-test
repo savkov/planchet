@@ -1,0 +1,19 @@
+FROM quay.io/savkov/pandas
+MAINTAINER "Sasho Savkov" <sasho.savkov@babylonhealth.com>
+
+# copying requirements
+COPY requirements.txt /opt/project/
+COPY test_requirements.txt /opt/project/
+
+# installing requirements
+RUN pip install -r /opt/project/test_requirements.txt
+# make sure the testing directory exists
+RUN mkdir /data && mkdir /data/planchet-data
+
+# copyting the project
+COPY . /opt/project
+
+# set working directory
+WORKDIR /opt/project
+
+CMD ["pytest"]

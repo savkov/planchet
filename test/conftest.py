@@ -7,7 +7,8 @@ import fakeredis
 from planchet import Job
 from planchet.io import CsvReader, CsvWriter
 from planchet.client import PlanchetClient
-from .const import TEST_JOB_NAME, PLANCHET_HOST, PLANCHET_PORT
+from planchet.config import REDIS_HOST, REDIS_PORT, REDIS_PWD
+from .const import TEST_JOB_NAME, PLANCHET_HOST, PLANCHET_PORT, PLANCHET_TEST_DIR
 from app import app, LEDGER
 
 
@@ -29,7 +30,7 @@ def job_params():
 
 @pytest.fixture()
 def input_fp(data):
-    fp = f'./input_file.csv'
+    fp = os.path.join(PLANCHET_TEST_DIR, 'input_file.csv')
     with open(fp, 'w') as fh:
         fh.write(data)
     yield fp
@@ -38,7 +39,7 @@ def input_fp(data):
 
 @pytest.fixture()
 def output_fp():
-    fp = f'./output_file.csv'
+    fp = os.path.join(PLANCHET_TEST_DIR, 'output_file.csv')
     yield fp
     try:
         os.remove(fp)
@@ -58,6 +59,8 @@ def metadata(input_fp, output_fp):
 
 @pytest.fixture(scope='function')
 def client():
+    assert LEDGER is not None, f'Cannot connect to redis during testing: ' \
+                               f'{REDIS_HOST}:{REDIS_PORT} using password {bool(REDIS_PWD)}'
     yield TestClient(app)
     LEDGER.delete(f'JOB:{TEST_JOB_NAME}')
     for k in LEDGER.scan_iter(f'{TEST_JOB_NAME}:*'):
