@@ -1,7 +1,12 @@
 version: 2
 
-prelude: &prelude
+prelude_machine: &prelude_machine
   machine: true
+  working_directory: ~/planchet
+
+prelude_docker: &prelude_docker
+  docker:
+  - image: circleci/python:3.6.8
   working_directory: ~/planchet
 
 prepare_venv: &prepare_venv
@@ -71,7 +76,7 @@ workflows:
 
 jobs:
   prepare_env:
-    <<: *prelude
+    <<: *prelude_docker
     steps:
     - checkout
     - *restore_venv
@@ -81,15 +86,13 @@ jobs:
         make install-test
     - *save_venv
   test:
-    <<: *prelude
+    <<: *prelude_machine
     steps:
     - checkout
-    - *restore_venv
     - run: |
-        source .venv/bin/activate
         make test-docker
   test-coverage:
-    <<: *prelude
+    <<: *prelude_docker
     steps:
     - checkout
     - *restore_venv
@@ -100,7 +103,7 @@ jobs:
         make test
     - *upload_code_climate
   lint:
-    <<: *prelude
+    <<: *prelude_docker
     steps:
     - checkout
     - *restore_venv
