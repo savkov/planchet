@@ -47,7 +47,7 @@ release:
 	twine upload dist/*
 
 tag:
-	docker tag $(REPO)/$(NAME):$(VERSION) $(REPO)/$(NAME):$(SEMVER_VERSION)
+	docker tag $(REPO)/$(NAME):$(VERSION) $(REPO)/$(NAME):$(SEMVER_VERSION);
 	docker tag $(REPO)/$(NAME):$(VERSION) $(REPO)/$(NAME):latest
 
 push:
