@@ -65,8 +65,6 @@ workflows:
         <<: *not_master
     - test:
         context: sasho
-        requires:
-        - prepare_env
         <<: *not_master
     - test-coverage:
         context: sasho
