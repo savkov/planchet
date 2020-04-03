@@ -46,9 +46,11 @@ release:
 	python setup.py sdist bdist_wheel &&\
 	twine upload dist/*
 
-tag:
-	docker tag $(REPO)/$(NAME):$(VERSION) $(REPO)/$(NAME):$(SEMVER_VERSION); \
+tag-latest:
 	docker tag $(REPO)/$(NAME):$(VERSION) $(REPO)/$(NAME):latest
+
+tag-semver:
+	docker tag $(REPO)/$(NAME):$(VERSION) $(REPO)/$(NAME):$(SEMVER_VERSION)
 
 push:
 	docker push $(REPO)/$(NAME):$(SEMVER_VERSION); \
