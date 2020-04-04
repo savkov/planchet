@@ -52,6 +52,13 @@ not_master: &not_master
       ignore:
       - master
 
+only_tags: &only_tags
+  filters:
+    tag:
+      only: /^.*$/
+    branches:
+      ignore: /.*/
+
 workflows:
   version: 2
   planchet-flow:
@@ -73,7 +80,7 @@ workflows:
         <<: *only_master
     - push:
         context: sasho
-        <<: *only_master
+        <<: *only_tags
 
 jobs:
   prepare_env:
