@@ -86,7 +86,7 @@ git clone https://github.com/savkov/planchet.git
 cd planchet
 mkdir data
 wget https://raw.githubusercontent.com/explosion/prodigy-recipes/master/example-datasets/news_headlines.jsonl -O data/news_headlines.jsonl
-python -c "news=open('data/news_headlines.jsonl').read();open('data/news_headlines.jsonl', 'w').write(''.join([news for _ in range(1000)]))"
+python -c "news=open('data/news_headlines.jsonl').read();open('data/news_headlines.jsonl', 'w').write(''.join([news for _ in range(200)]))"
 export PLANCHET_REDIS_PWD=<your-redis-password>
 make install
 make install-redis
@@ -115,16 +115,16 @@ from tqdm import tqdm
 
 nlp = spacy.load("en_core_web_sm")
 
-PLANCHET_HOST = '<your host address>'  # fill in the host
+PLANCHET_HOST = 'localhost'  # <--- CHANGE IF NEEDED
 PLANCHET_PORT = 5005
 
 url = f'http://{PLANCHET_HOST}:{PLANCHET_PORT}'
 client = PlanchetClient(url)
 
-job_name = 'spacy-ner-job-3'
-metadata = {  # fill in metadata
-    'input_file_path': '<path-to-planchet-repo>/data/news_headlines.jsonl',
-    'output_file_path': '<path-to-planchet-repo>/data/entities.jsonl'
+job_name = 'spacy-ner-job'
+metadata = { # NOTE: this assumes planchet has access to this path
+    'input_file_path': './data/news_headlines.jsonl',
+    'output_file_path': './data/entities.jsonl'
 }
 
 # make sure you don't use the clean_start option here
