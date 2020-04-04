@@ -124,6 +124,26 @@ def test_jsnl_read(config):
     os.remove(file_path)
 
 
+def test_jsonl_read_id():
+    jsonl = '{"k1": "v1", "k2": "v2"}\n{"k1": "v11", "k2": "v22"}\n' \
+            '{"k1": "v1", "k2": "v2"}\n{"k1": "v11", "k2": "v22"}\n' \
+            '{"k1": "v1", "k2": "v2"}\n{"k1": "v11", "k2": "v22"}'
+    file_path = 'temp.jsnl'
+    metadata = {
+        'input_file_path': file_path,
+    }
+    with open(file_path, 'w') as fh:
+        fh.write(jsonl)
+    reader = JsonlReader(metadata)
+    reader(2)
+    assert reader.id_ == 2
+    reader(2)
+    assert reader.id_ == 4
+    reader(10)
+    assert reader.id_ == 6
+    os.remove(file_path)
+
+
 @pytest.mark.parametrize(
     "config",
     [
