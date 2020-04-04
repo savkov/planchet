@@ -4,10 +4,10 @@ from .const import TEST_JOB_NAME
 
 
 @pytest.mark.local
-def test_start_job(planchet_client, live_ledger, metadata):
+def test_start_job(planchet_client, live_ledger, metadata_client):
     assert planchet_client.check()['Redis status'] == 'Online', 'Redis offline'
     live_ledger.delete(f'JOB:{TEST_JOB_NAME}')
-    planchet_client.start_job(TEST_JOB_NAME, metadata, 'CsvReader',
+    planchet_client.start_job(TEST_JOB_NAME, metadata_client, 'CsvReader',
                               'CsvWriter')
     assert live_ledger.get(f'JOB:{TEST_JOB_NAME}')
 
@@ -27,20 +27,20 @@ def test_check(planchet_client):
 
 
 @pytest.mark.local
-def test_get_job_report(planchet_client, live_ledger, metadata):
+def test_get_job_report(planchet_client, live_ledger, metadata_client):
     assert planchet_client.check()['Redis status'] == 'Online', 'Redis offline'
     live_ledger.delete(f'JOB:{TEST_JOB_NAME}')
-    planchet_client.start_job(TEST_JOB_NAME, metadata, 'CsvReader',
+    planchet_client.start_job(TEST_JOB_NAME, metadata_client, 'CsvReader',
                               'CsvWriter')
     report = planchet_client.get_job_report(TEST_JOB_NAME)
     assert report
 
 
 @pytest.mark.local
-def test_get(planchet_client, live_ledger, metadata):
+def test_get(planchet_client, live_ledger, metadata_client):
     assert planchet_client.check()['Redis status'] == 'Online', 'Redis offline'
     live_ledger.delete(f'JOB:{TEST_JOB_NAME}')
-    planchet_client.start_job(TEST_JOB_NAME, metadata, 'CsvReader',
+    planchet_client.start_job(TEST_JOB_NAME, metadata_client, 'CsvReader',
                               'CsvWriter')
     n_items = 20
     items = planchet_client.get(TEST_JOB_NAME, n_items)
@@ -48,10 +48,10 @@ def test_get(planchet_client, live_ledger, metadata):
 
 
 @pytest.mark.local
-def test_send(planchet_client, live_ledger, metadata):
+def test_send(planchet_client, live_ledger, metadata_client):
     assert planchet_client.check()['Redis status'] == 'Online', 'Redis offline'
     live_ledger.delete(f'JOB:{TEST_JOB_NAME}')
-    planchet_client.start_job(TEST_JOB_NAME, metadata, 'CsvReader',
+    planchet_client.start_job(TEST_JOB_NAME, metadata_client, 'CsvReader',
                               'CsvWriter')
     n_items = 20
     items = planchet_client.get(TEST_JOB_NAME, n_items)

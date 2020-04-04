@@ -3,7 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-./data
+# local
+data/
+redis/
+
 
 # pycharm
 .idea/

@@ -7,6 +7,7 @@ import fakeredis
 from planchet import Job
 from planchet.io import CsvReader, CsvWriter
 from planchet.client import PlanchetClient
+from planchet.config import REDIS_HOST, REDIS_PORT, REDIS_PWD
 from .const import TEST_JOB_NAME, PLANCHET_HOST, PLANCHET_PORT
 from app import app, LEDGER
 
@@ -29,7 +30,16 @@ def job_params():
 
 @pytest.fixture()
 def input_fp(data):
-    fp = f'./input_file.csv'
+    fp = 'input_file.csv'
+    with open(fp, 'w') as fh:
+        fh.write(data)
+    yield fp
+    os.remove(fp)
+
+
+@pytest.fixture()
+def input_fp_client(data):
+    fp = '/data/client_input_file.csv'
     with open(fp, 'w') as fh:
         fh.write(data)
     yield fp
@@ -38,7 +48,17 @@ def input_fp(data):
 
 @pytest.fixture()
 def output_fp():
-    fp = f'./output_file.csv'
+    fp = 'output_file.csv'
+    yield fp
+    try:
+        os.remove(fp)
+    except FileNotFoundError:
+        pass
+
+
+@pytest.fixture()
+def output_fp_client():
+    fp = '/data/client_output_file.csv'
     yield fp
     try:
         os.remove(fp)
@@ -56,8 +76,15 @@ def metadata(input_fp, output_fp):
     return {'input_file_path': input_fp, 'output_file_path': output_fp}
 
 
+@pytest.fixture()
+def metadata_client(input_fp_client, output_fp_client):
+    return {'input_file_path': input_fp_client, 'output_file_path': output_fp_client}
+
+
 @pytest.fixture(scope='function')
 def client():
+    assert LEDGER is not None, f'Cannot connect to redis during testing: ' \
+                               f'{REDIS_HOST}:{REDIS_PORT} using password {bool(REDIS_PWD)}'
     yield TestClient(app)
     LEDGER.delete(f'JOB:{TEST_JOB_NAME}')
     for k in LEDGER.scan_iter(f'{TEST_JOB_NAME}:*'):

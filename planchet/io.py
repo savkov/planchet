@@ -8,6 +8,7 @@ from pandas.io.parsers import TextFileReader
 
 from .util import red
 
+
 class CsvReader:
 
     def __init__(self, meta_data: Dict):
@@ -42,7 +43,7 @@ class JsonlReader:
         for id_, line in enumerate(self.iter, start=self.id_):
             try:
                 jsn: Union[Dict, List] = json.loads(line)
-            except json.JSONDecodeError as e:
+            except json.JSONDecodeError:
                 logging.error(red(f'Could not parse JSON: {line}'))
                 continue
             batch.append((id_, jsn))

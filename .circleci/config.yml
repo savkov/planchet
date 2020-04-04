@@ -1,6 +1,10 @@
 version: 2
 
-prelude: &prelude
+prelude_machine: &prelude_machine
+  machine: true
+  working_directory: ~/planchet
+
+prelude_docker: &prelude_docker
   docker:
   - image: circleci/python:3.6.8
   working_directory: ~/planchet
@@ -48,6 +52,13 @@ not_master: &not_master
       ignore:
       - master
 
+only_tags: &only_tags
+  filters:
+    tags:
+      only: /^.*$/
+    branches:
+      ignore: /^(?:(?!master).)*$/
+
 workflows:
   version: 2
   planchet-flow:
@@ -61,18 +72,19 @@ workflows:
         <<: *not_master
     - test:
         context: sasho
-        requires:
-        - prepare_env
         <<: *not_master
     - test-coverage:
         context: sasho
         requires:
         - prepare_env
         <<: *only_master
+    - push:
+        context: sasho
+        <<: *only_tags
 
 jobs:
   prepare_env:
-    <<: *prelude
+    <<: *prelude_docker
     steps:
     - checkout
     - *restore_venv
@@ -82,15 +94,26 @@ jobs:
         make install-test
     - *save_venv
   test:
-    <<: *prelude
+    <<: *prelude_machine
     steps:
     - checkout
-    - *restore_venv
     - run: |
-        source .venv/bin/activate
-        make test
+        make login
+        make build
+        make tag-latest
+        make test-docker
+  push:
+    <<: *prelude_machine
+    steps:
+      - checkout
+      - run: |
+          make login
+          make build
+          make tag-latest
+          make tag-semver
+          make push
   test-coverage:
-    <<: *prelude
+    <<: *prelude_docker
     steps:
     - checkout
     - *restore_venv
@@ -101,7 +124,7 @@ jobs:
         make test
     - *upload_code_climate
   lint:
-    <<: *prelude
+    <<: *prelude_docker
     steps:
     - checkout
     - *restore_venv

@@ -1,0 +1,23 @@
+FROM quay.io/savkov/alpine-pandas
+MAINTAINER "Sasho Savkov" <me@sasho.io>
+
+# copying requirements
+COPY requirements.txt /opt/project/
+COPY test_requirements.txt /opt/project/
+
+# installing requirements
+RUN pip install -r /opt/project/test_requirements.txt
+
+# make sure the testing directory exists
+RUN mkdir /data && mkdir /data/.test
+
+# copyting the project
+COPY . /opt/project
+
+# copy dummie file for the client test
+RUN cp /opt/project/test/data/client_input_file.csv /data/.test/
+
+# set working directory
+WORKDIR /opt/project
+
+CMD ["pytest"]

@@ -1,0 +1,26 @@
+version: "2.1"
+services:
+  planchet:
+    image: quay.io/savkov/planchet
+    ports:
+      - "5005:5005"
+    healthcheck:
+      test: "exit 0"
+    environment:
+      - PLANCHET_REDIS_HOST=redis
+      - PLANCHET_REDIS_PORT=6379
+      - PLANCHET_REDIS_PWD=${PLANCHET_REDIS_PWD}
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./data:/data
+  redis:
+    image: quay.io/savkov/redis
+    healthcheck:
+      test: "exit 0"
+    ports:
+      - "6379:6379"
+    volumes:
+      - "./redis:/data"
+    command: ["redis-server", "/etc/redis/redis.conf", "--requirepass", "${PLANCHET_REDIS_PWD}"]
