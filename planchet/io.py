@@ -47,9 +47,9 @@ class JsonlReader:
                 logging.error(red(f'Could not parse JSON: {line}'))
                 continue
             batch.append((id_, jsn))
+            self.id_ = id_ + 1
             if len(batch) == batch_size:
                 break
-            self.id_ = id_ + 1
         return batch
 
 
