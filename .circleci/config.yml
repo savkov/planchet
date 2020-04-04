@@ -120,7 +120,7 @@ jobs:
     steps:
       - checkout
       - run: |
-          pip install pypi-cli twine wheel
+          pip install --user pypi-cli twine wheel
           if python check_release.py; then make release; else echo "Version already released"; fi
   test-coverage:
     <<: *prelude_docker
