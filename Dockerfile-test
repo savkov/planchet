@@ -15,7 +15,7 @@ RUN mkdir /data && mkdir /data/.test
 COPY . /opt/project
 
 # copy dummie file for the client test
-RUN cp /opt/project/test/data/input_file.csv /data/.test/
+RUN cp /opt/project/test/data/client_input_file.csv /data/.test/
 
 # set working directory
 WORKDIR /opt/project
