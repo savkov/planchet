@@ -47,7 +47,7 @@ release:
 	python -c "text=open('setup.py').read();import re;v=re.search('version=\'([\d.vab]+)\'',text).group(1);print(v,end='')" | xargs -I{} git tag {} &&\
 	pip install twine wheel &&\
 	python setup.py sdist bdist_wheel &&\
-	twine upload dist/*
+	python -m twine upload dist/*
 
 tag-latest:
 	docker tag $(REPO)/$(NAME):$(VERSION) $(REPO)/$(NAME):latest
