@@ -14,7 +14,7 @@ services:
       redis:
         condition: service_healthy
     volumes:
-      - ./data:/data/planchet-data
+      - ./data:/data
   test:
     build:
       context: .
@@ -30,7 +30,7 @@ services:
       - PLANCHET_REDIS_PWD=${PLANCHET_REDIS_PWD}
       - PLANCHET_HOST=planchet
       - PLANCHET_PORT=5005
-      - PLANCHET_TEST_DIR=/data/planchet-data
+      - PLANCHET_TEST_DIR=/data
     command: ["pytest", "-v"]
   redis:
     image: quay.io/savkov/redis

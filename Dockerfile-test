@@ -7,8 +7,9 @@ COPY test_requirements.txt /opt/project/
 
 # installing requirements
 RUN pip install -r /opt/project/test_requirements.txt
+
 # make sure the testing directory exists
-RUN mkdir /data && mkdir /data/planchet-data
+RUN mkdir /data
 
 # copyting the project
 COPY . /opt/project
