@@ -54,7 +54,7 @@ not_master: &not_master
 
 only_tags: &only_tags
   filters:
-    tag:
+    tags:
       only: /^.*$/
     branches:
       ignore: /.*/
