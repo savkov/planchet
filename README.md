@@ -61,6 +61,8 @@ uvicorn app:app --reload --host 0.0.0.0 --port 5005 --workers 1
 You can also run docker-compose from the git repo:
 
 ```shell script
+git clone git@github.com:savkov/planchet.git
+export REDIS_PWD=<some-password>
 docker-compose up
 ```
 

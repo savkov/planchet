@@ -1,5 +1,5 @@
 FROM quay.io/savkov/alpine-pandas
-MAINTAINER "Sasho Savkov" <sasho.savkov@babylonhealth.com>
+MAINTAINER "Sasho Savkov" <me@sasho.io>
 
 # copying requirements
 COPY requirements.txt /opt/project/

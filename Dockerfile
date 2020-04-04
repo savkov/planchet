@@ -1,5 +1,5 @@
 FROM quay.io/savkov/alpine-pandas
-MAINTAINER "Sasho Savkov" <sasho.savkov@babylonhealth.com>
+MAINTAINER "Sasho Savkov" <me@sasho.io>
 
 # Create the user that will run the app
 RUN adduser -D -u 1000 planchet
@@ -9,10 +9,7 @@ COPY requirements.txt /opt/project/
 
 # install requirements & modify the data directory
 RUN pip install -r /opt/project/requirements.txt && \
-    mkdir /data
-
-# give dir to planchet
-RUN chown -R planchet /data
+    mkdir /data && chown -R planchet /data
 
 # copy the project
 COPY ./ /opt/project

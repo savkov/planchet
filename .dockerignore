@@ -1,0 +1,31 @@
+# Common
+README.md
+CHANGELOG.md
+docker-compose.yml
+docker-compose-test.yml
+Dockerfile
+Dockerfile-test
+Makefile
+
+# dots
+.DS_Store/*
+.idea/*
+.gitignore
+.coverage
+.coveragerc
+coverage.xml
+
+# specific
+data/*
+redis/*
+img/*
+dist/*
+build/*
+planchet.egg-info/*
+planchetclient.egg-info/*
+
+# circleci
+.circleci/*
+
+# python
+.pytest_cache/*
