@@ -57,9 +57,7 @@ only_tags: &only_tags
     tags:
       only: /^.*$/
     branches:
-#      ignore: ^(?:(?!master).)*$
-      only:
-      - master
+      ignore: /^(?:(?!master).)*$/
 
 workflows:
   version: 2
