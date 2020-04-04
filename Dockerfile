@@ -9,6 +9,7 @@ COPY requirements.txt /opt/project/
 
 # install requirements & modify the data directory
 RUN pip install -r /opt/project/requirements.txt && \
+    mkdir /data && mkdir /data/planchet-data && \
     chown planchet /data/planchet-data
 
 VOLUME /data/planchet-data
