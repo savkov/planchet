@@ -9,10 +9,13 @@ COPY test_requirements.txt /opt/project/
 RUN pip install -r /opt/project/test_requirements.txt
 
 # make sure the testing directory exists
-RUN mkdir /data
+RUN mkdir /data && mkdir /data/.test
 
 # copyting the project
 COPY . /opt/project
+
+# copy dummie file for the client test
+RUN cp /opt/project/test/data/input_file.csv /data/.test/
 
 # set working directory
 WORKDIR /opt/project

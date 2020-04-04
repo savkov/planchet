@@ -21,6 +21,9 @@ install-redis:
 run:
 	uvicorn app:app --reload --host 0.0.0.0 --port 5005 --workers 1
 
+run-docker:
+	docker-compose up
+
 install:
 	pip install -r requirements.txt
 
@@ -32,7 +35,7 @@ test:
 	coverage xml
 
 test-docker:
-	docker-compose run test
+	docker-compose -f docker-compose-test.yml run test
 
 test-local:
 	pip install -r test_requirements.txt && pytest

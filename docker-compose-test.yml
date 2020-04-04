@@ -14,7 +14,23 @@ services:
       redis:
         condition: service_healthy
     volumes:
-      - ./data:/data
+      - ./test/data:/data
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile-test
+    depends_on:
+      redis:
+        condition: service_healthy
+      planchet:
+        condition: service_healthy
+    environment:
+      - PLANCHET_REDIS_HOST=redis
+      - PLANCHET_REDIS_PORT=6379
+      - PLANCHET_REDIS_PWD=${PLANCHET_REDIS_PWD}
+      - PLANCHET_HOST=planchet
+      - PLANCHET_PORT=5005
+    command: ["pytest", "-v"]
   redis:
     image: quay.io/savkov/redis
     healthcheck:

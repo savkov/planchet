@@ -91,9 +91,6 @@ jobs:
     steps:
     - checkout
     - run: |
-        sudo mkdir /data
-        sudo chown circleci /data
-        mkdir /data/planchet-data
         make login
         make build
         make tag-latest

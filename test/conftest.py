@@ -8,7 +8,7 @@ from planchet import Job
 from planchet.io import CsvReader, CsvWriter
 from planchet.client import PlanchetClient
 from planchet.config import REDIS_HOST, REDIS_PORT, REDIS_PWD
-from .const import TEST_JOB_NAME, PLANCHET_HOST, PLANCHET_PORT, PLANCHET_TEST_DIR
+from .const import TEST_JOB_NAME, PLANCHET_HOST, PLANCHET_PORT
 from app import app, LEDGER
 
 
@@ -30,7 +30,16 @@ def job_params():
 
 @pytest.fixture()
 def input_fp(data):
-    fp = os.path.join(PLANCHET_TEST_DIR, 'input_file.csv')
+    fp = 'input_file.csv'
+    with open(fp, 'w') as fh:
+        fh.write(data)
+    yield fp
+    os.remove(fp)
+
+
+@pytest.fixture()
+def input_fp_client(data):
+    fp = '/data/input_file.csv'
     with open(fp, 'w') as fh:
         fh.write(data)
     yield fp
@@ -39,7 +48,17 @@ def input_fp(data):
 
 @pytest.fixture()
 def output_fp():
-    fp = os.path.join(PLANCHET_TEST_DIR, 'output_file.csv')
+    fp = 'output_file.csv'
+    yield fp
+    try:
+        os.remove(fp)
+    except FileNotFoundError:
+        pass
+
+
+@pytest.fixture()
+def output_fp_client():
+    fp = '/data/output_file.csv'
     yield fp
     try:
         os.remove(fp)
@@ -55,6 +74,11 @@ def data():
 @pytest.fixture()
 def metadata(input_fp, output_fp):
     return {'input_file_path': input_fp, 'output_file_path': output_fp}
+
+
+@pytest.fixture()
+def metadata_client(input_fp_client, output_fp_client):
+    return {'input_file_path': input_fp_client, 'output_file_path': output_fp_client}
 
 
 @pytest.fixture(scope='function')
