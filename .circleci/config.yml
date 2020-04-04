@@ -121,8 +121,7 @@ jobs:
       - checkout
       - run: |
           pip install --user pypi-cli twine wheel
-          cd planchet
-          if python check_release.py; then make release; else echo "Version already released"; fi
+          if python ~/planchet/check_release.py; then make release; else echo "Version already released"; fi
   test-coverage:
     <<: *prelude_docker
     steps:
