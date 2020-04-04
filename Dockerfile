@@ -11,7 +11,8 @@ COPY requirements.txt /opt/project/
 RUN pip install -r /opt/project/requirements.txt && \
     mkdir /data
 
-RUN chmod 777 /data
+# give dir to planchet
+RUN chown -R planchet /data
 
 # copy the project
 COPY ./ /opt/project
@@ -20,6 +21,6 @@ COPY ./ /opt/project
 WORKDIR /opt/project
 
 # switch to non-root user
-#USER planchet
+USER planchet
 
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--workers", "1", "--port", "5005"]
