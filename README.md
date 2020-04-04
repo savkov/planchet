@@ -1,7 +1,7 @@
 # Planchet
 _Your large data processing personal assistant_
 
-[![CircleCI](https://circleci.com/gh/savkov/planchet.svg?style=svg)](https://circleci.com/gh/savkov/planchet)
+[![CircleCI](https://circleci.com/gh/savkov/planchet.svg?style=shield)](https://circleci.com/gh/savkov/planchet)
 [![Maintainability](https://api.codeclimate.com/v1/badges/4291c3334f1699a4f227/maintainability)](https://codeclimate.com/github/savkov/planchet/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/4291c3334f1699a4f227/test_coverage)](https://codeclimate.com/github/savkov/planchet/test_coverage)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
