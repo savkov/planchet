@@ -12,8 +12,6 @@ RUN pip install -r /opt/project/requirements.txt && \
     mkdir /data && mkdir /data/planchet-data && \
     chown planchet /data/planchet-data
 
-VOLUME /data/planchet-data
-
 # copy the project
 COPY ./ /opt/project
 
