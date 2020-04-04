@@ -44,8 +44,6 @@ lint:
 	pip install flake8 && flake8
 
 release:
-	python -c "text=open('setup.py').read();import re;v=re.search('version=\'([\d.vab]+)\'',text).group(1);print(v,end='')" | xargs -I{} git tag {} &&\
-	pip install twine wheel &&\
 	python setup.py sdist bdist_wheel &&\
 	python -m twine upload dist/*
 

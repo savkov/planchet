@@ -81,6 +81,9 @@ workflows:
     - push:
         context: sasho
         <<: *only_tags
+    - release:
+        context: sasho
+        <<: *only_master
 
 jobs:
   prepare_env:
@@ -112,8 +115,6 @@ jobs:
           make tag-latest
           make tag-semver
           make push
-<<<<<<< Updated upstream
-=======
   release:
     <<: *prelude_docker
     steps:
@@ -122,7 +123,6 @@ jobs:
           pip install --user pypi-cli twine wheel
           cd planchet
           if python check_release.py; then make release; else echo "Version already released"; fi
->>>>>>> Stashed changes
   test-coverage:
     <<: *prelude_docker
     steps:
