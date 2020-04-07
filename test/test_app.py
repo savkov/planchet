@@ -70,7 +70,7 @@ def test_scramble_writing_job(client, metadata_client):
         'reader_name': '',
         'writer_name': 'CsvWriter',
         'clean_start': 'false',
-        'io': WRITE_ONLY
+        'mode': WRITE_ONLY
     }
     param_string = _make_param_string(job_params)
     response = client.post(
@@ -88,6 +88,11 @@ def test_scramble_writing_job(client, metadata_client):
         json=items
     )
     assert response.status_code == 200, response.text
+    response = client.post(
+        f'/serve?job_name={TEST_JOB_NAME}&batch_size=10',
+        json=items
+    )
+    assert response.status_code == 400, response.text
 
 
 @pytest.mark.local
@@ -97,7 +102,7 @@ def test_scramble_reading_job(client, metadata_client):
         'reader_name': 'CsvReader',
         'writer_name': '',
         'clean_start': 'false',
-        'io': READ_ONLY
+        'mode': READ_ONLY
     }
     param_string = _make_param_string(job_params)
     response = client.post(
@@ -118,6 +123,11 @@ def test_scramble_reading_job(client, metadata_client):
     assert response.status_code == 200, response.text
     items = json.loads(response.text)
     assert len(items) == n_items
+    response = client.post(
+        f'/receive?job_name={TEST_JOB_NAME}&overwrite=false',
+        json=items
+    )
+    assert response.status_code == 400, response.text
 
 
 @pytest.mark.local

@@ -3,7 +3,7 @@ from typing import Callable, List, Dict, Union, Tuple
 
 from redis import Redis
 
-from planchet import io as io_module
+from planchet import io
 
 SERVED = 'SERVED'
 RECEIVED = 'RECEIVED'
@@ -18,12 +18,12 @@ READ_WRITE = 'read-write'
 
 class Job:
     def __init__(self, name: str, reader: Callable, writer: Callable,
-                 ledger: Redis, io: str = READ_WRITE):
+                 ledger: Redis, mode: str = READ_WRITE):
         self.name = name
         self.reader = reader
         self.writer = writer
         self.ledger = ledger
-        self.io = io
+        self.mode = mode
         self.served = set()
         self.received = set()
         self.exhausted = False
@@ -51,7 +51,7 @@ class Job:
             # This will skip writing data for records that have been written
             # already based on the id's in the ledger. This does not apply to
             # dumping jobs.
-            if self.io == READ_WRITE and not overwrite and \
+            if self.mode == READ_WRITE and not overwrite and \
                     self.ledger.get(
                         self.ledger_id(id_)).decode('utf8') == RECEIVED:
                 continue
@@ -108,8 +108,8 @@ class Job:
         reader_name = record['reader_name']
         writer_name = record['writer_name']
         metadata = record['metadata']
-        reader: Callable = getattr(io_module, reader_name)(metadata)
-        writer: Callable = getattr(io_module, writer_name)(metadata)
+        reader: Callable = getattr(io, reader_name)(metadata)
+        writer: Callable = getattr(io, writer_name)(metadata)
         dumping: bool = record['dumping']
         job: Job = Job(job_name, reader, writer, ledger, dumping)
         return job
