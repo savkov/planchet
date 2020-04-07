@@ -3,6 +3,7 @@ import os
 
 import pytest
 
+from planchet.core import WRITE_ONLY, READ_ONLY
 from .const import TEST_JOB_NAME
 
 
@@ -19,7 +20,8 @@ def test_scramble_new(client, job_params, metadata):
         f'/scramble?{param_string}',
         json=metadata
     )
-    assert client.get(f'/report?job_name={TEST_JOB_NAME}')
+    response = client.get(f'/report?job_name={TEST_JOB_NAME}')
+    assert response.status_code == 200, response.text
 
 
 @pytest.mark.local
@@ -40,7 +42,8 @@ def test_scramble_restart(client, job_params, metadata):
     )
     response = json.loads(client.get(f'/report?job_name={TEST_JOB_NAME}').text)
     assert response['served'] == 0
-    assert client.get(f'/report?job_name={TEST_JOB_NAME}')
+    response = client.get(f'/report?job_name={TEST_JOB_NAME}')
+    assert response.status_code == 200, response.text
 
 
 @pytest.mark.local
@@ -57,7 +60,74 @@ def test_scramble_continue(client, job_params, metadata):
         f'/scramble?{param_string}',
         json=metadata
     )
-    assert response.status_code == 400
+    assert response.status_code == 400, response.text
+
+
+@pytest.mark.local
+def test_scramble_writing_job(client, metadata_client):
+    job_params = {
+        'job_name': TEST_JOB_NAME,
+        'reader_name': '',
+        'writer_name': 'CsvWriter',
+        'clean_start': 'false',
+        'mode': WRITE_ONLY
+    }
+    param_string = _make_param_string(job_params)
+    response = client.post(
+        f'/scramble?{param_string}',
+        json=metadata_client
+    )
+    assert response.status_code == 200, response.text
+    items = [
+        (1, ['val1', 'val2']),
+        (2, ['val1', 'val2']),
+        (3, ['val1', 'val2']),
+    ]
+    response = client.post(
+        f'/receive?job_name={TEST_JOB_NAME}&overwrite=false',
+        json=items
+    )
+    assert response.status_code == 200, response.text
+    response = client.post(
+        f'/serve?job_name={TEST_JOB_NAME}&batch_size=10',
+        json=items
+    )
+    assert response.status_code == 400, response.text
+
+
+@pytest.mark.local
+def test_scramble_reading_job(client, metadata_client):
+    job_params = {
+        'job_name': TEST_JOB_NAME,
+        'reader_name': 'CsvReader',
+        'writer_name': '',
+        'clean_start': 'false',
+        'mode': READ_ONLY
+    }
+    param_string = _make_param_string(job_params)
+    response = client.post(
+        f'/scramble?{param_string}',
+        json=metadata_client
+    )
+    assert response.status_code == 200, response.text
+    items = [
+        (1, ['val1', 'val2']),
+        (2, ['val1', 'val2']),
+        (3, ['val1', 'val2']),
+    ]
+    n_items = 3
+    response = client.post(
+        f'/serve?job_name={TEST_JOB_NAME}&batch_size={n_items}',
+        json=items
+    )
+    assert response.status_code == 200, response.text
+    items = json.loads(response.text)
+    assert len(items) == n_items
+    response = client.post(
+        f'/receive?job_name={TEST_JOB_NAME}&overwrite=false',
+        json=items
+    )
+    assert response.status_code == 400, response.text
 
 
 @pytest.mark.local
@@ -74,20 +144,20 @@ def test_receive(client, job_params, metadata):
         f'/receive?job_name={TEST_JOB_NAME}&overwrite=false',
         json=items
     )
-    assert response.status_code == 200
+    assert response.status_code == 200, response.text
 
 
 @pytest.mark.local
 def test_serve_bad_key(client):
     response = client.post(f'/serve?job_name=badjobname&batch_size=5')
-    assert response.status_code == 400
+    assert response.status_code == 400, response.text
 
 
 @pytest.mark.local
 def test_healthcheck(client):
-    res = client.get('/health')
-    assert res.status_code == 200
-    assert json.loads(res.text)
+    response = client.get('/health')
+    assert response.status_code == 200, response.text
+    assert json.loads(response.text)
 
 
 @pytest.mark.local
@@ -110,5 +180,5 @@ def test_delete(client):
     )
     client.get(f'/delete?job_name={TEST_JOB_NAME}')
     response = client.get(f'/report?job_name={TEST_JOB_NAME}')
-    assert not json.loads(response.text)
+    assert not json.loads(response.text), response.text
     os.remove(input_fp)

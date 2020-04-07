@@ -1,4 +1,5 @@
 import json
+import os
 
 from pydantic.typing import NoneType
 
@@ -7,7 +8,7 @@ from .const import CSV_SIZE
 from typing import Dict
 import pytest
 
-from planchet.core import Job, COMPLETE, IN_PROGRESS, RECEIVED, SERVED
+from planchet.core import Job, COMPLETE, IN_PROGRESS, RECEIVED, SERVED, WRITE_ONLY, READ_ONLY
 
 
 @pytest.mark.parametrize('batch_size', [1, 2, 5, 10, 13, 30, 32])
@@ -61,7 +62,8 @@ def test_restore_job(reader, writer, ledger):
     value = json.dumps({
         'metadata': metadata,
         'reader_name': type(reader).__name__,
-        'writer_name': type(writer).__name__
+        'writer_name': type(writer).__name__,
+        'dumping': False
     })
     ledger.set(job_key, value)
     n_skips: int = 10
@@ -123,3 +125,26 @@ def test_stats(job):
     assert stats['served'] == n_served
     assert stats['received'] == 2
     assert stats['status'] == IN_PROGRESS
+
+
+def test_writing_job(writer, ledger):
+    job = Job('dumping-job', None, writer, ledger, WRITE_ONLY)
+    items = [
+        (1, ['val1', 'val2']),
+        (2, ['val1', 'val2']),
+        (3, ['val1', 'val2']),
+    ]
+    job.receive(items, False)
+    assert os.path.exists(writer.file_path)
+    with open(writer.file_path) as fh:
+        for i, line in enumerate(fh, start=1):
+            assert len(line.split(',')) == 2
+    assert i == 3
+    assert len(list([item for item in ledger.scan_iter('dumping-job:*')])) == 3
+
+
+def test_reading_job(reader, ledger):
+    job = Job('dumping-job', reader, None, ledger, READ_ONLY)
+    n_items = 5
+    items = job.serve(n_items)
+    assert items, items

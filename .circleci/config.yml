@@ -131,7 +131,8 @@ jobs:
     - run: |
         source .venv/bin/activate
         pip install coverage
-        make test
+        pip install -r test_requirements.txt
+        make test-coverage
     - *upload_code_climate
   lint:
     <<: *prelude_docker
@@ -140,4 +141,5 @@ jobs:
     - *restore_venv
     - run: |
         source .venv/bin/activate
+        pip install flake8
         make lint

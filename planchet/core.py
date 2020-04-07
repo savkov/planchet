@@ -11,14 +11,19 @@ RECEIVED = 'RECEIVED'
 IN_PROGRESS = 'IN_PROGRESS'
 COMPLETE = 'COMPLETE'
 
+READ_ONLY = 'read'
+WRITE_ONLY = 'write'
+READ_WRITE = 'read-write'
+
 
 class Job:
     def __init__(self, name: str, reader: Callable, writer: Callable,
-                 ledger: Redis):
+                 ledger: Redis, mode: str = READ_WRITE):
         self.name = name
         self.reader = reader
         self.writer = writer
         self.ledger = ledger
+        self.mode = mode
         self.served = set()
         self.received = set()
         self.exhausted = False
@@ -43,10 +48,12 @@ class Job:
         ids = []
         data = []
         for id_, item in items:
-            value = self.ledger.get(self.ledger_id(id_)).decode('utf8')
             # This will skip writing data for records that have been written
-            # already based on the id's in the ledger.
-            if not overwrite and value == RECEIVED:
+            # already based on the id's in the ledger. This does not apply to
+            # dumping jobs.
+            if self.mode == READ_WRITE and not overwrite and \
+                    self.ledger.get(
+                        self.ledger_id(id_)).decode('utf8') == RECEIVED:
                 continue
             ids.append(id_)
             data.append(item)
@@ -103,5 +110,6 @@ class Job:
         metadata = record['metadata']
         reader: Callable = getattr(io, reader_name)(metadata)
         writer: Callable = getattr(io, writer_name)(metadata)
-        job: Job = Job(job_name, reader, writer, ledger)
+        dumping: bool = record['dumping']
+        job: Job = Job(job_name, reader, writer, ledger, dumping)
         return job
