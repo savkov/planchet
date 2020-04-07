@@ -27,7 +27,7 @@ def test_delete_job(planchet_client, live_ledger):
 @pytest.mark.local
 def test_check(planchet_client):
     response = planchet_client.check()
-    assert response.status_code and json.loads(response.text), response
+    assert response
 
 
 @pytest.mark.local
