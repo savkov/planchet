@@ -53,13 +53,15 @@ except ConnectionError:
 
 @app.post("/scramble")
 def scramble(job_name: str, metadata: Dict, reader_name: str,
-             writer_name: str, clean_start: bool = False):
+             writer_name: str, clean_start: bool = False,
+             dumping: bool = False):
     logging.info(util.pink(
         f'SCRAMBLING: name->{job_name}; metadata->{metadata}; '
         f'reader_name->{reader_name}; writer_name->{writer_name}; '
         f'clean_start->{clean_start}'))
     try:
-        reader: Callable = getattr(io, reader_name)(metadata)
+        reader: Callable = getattr(io, reader_name)(metadata) \
+            if reader_name else None
         writer: Callable = getattr(io, writer_name)(metadata)
     except FileNotFoundError as e:
         logging.error(e)
@@ -76,9 +78,10 @@ def scramble(job_name: str, metadata: Dict, reader_name: str,
         msg = f'Job {job_name} already exists.'
         raise HTTPException(status_code=400, detail=msg)
     JOB_LOG[job_name] = new_job
+    # TODO: move this in a method inside the Job class and call here
     LEDGER.set(f'JOB:{job_name}', json.dumps({
         'metadata': metadata, 'reader_name': reader_name,
-        'writer_name': writer_name}))
+        'writer_name': writer_name, 'dumping': dumping}))
 
 
 @app.post("/serve")
