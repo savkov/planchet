@@ -8,8 +8,7 @@ from .const import CSV_SIZE
 from typing import Dict
 import pytest
 
-from planchet import Job
-from planchet.core import COMPLETE, IN_PROGRESS, RECEIVED, SERVED, WRITE_ONLY, READ_ONLY
+from planchet.core import Job, COMPLETE, IN_PROGRESS, RECEIVED, SERVED, WRITE_ONLY, READ_ONLY
 
 
 @pytest.mark.parametrize('batch_size', [1, 2, 5, 10, 13, 30, 32])

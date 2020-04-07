@@ -4,7 +4,7 @@ from fastapi.testclient import TestClient
 import pytest
 import fakeredis
 
-from planchet import Job
+from planchet.core import Job
 from planchet.io import CsvReader, CsvWriter
 from planchet.client import PlanchetClient
 from planchet.config import REDIS_HOST, REDIS_PORT, REDIS_PWD
