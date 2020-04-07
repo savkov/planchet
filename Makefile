@@ -31,17 +31,18 @@ install-test:
 	pip install -r test_requirements.txt
 
 test:
-	pip install -r test_requirements.txt && pytest -v -m "not local" --cov-config .coveragerc --cov .
+	pytest -v -m "not local"
+
+test-coverage:
+	pytest -v -m "not local" --cov-config .coveragerc --cov .
 	coverage xml
 
 test-docker:
+	docker-compose -f docker-compose-test.yml build test && \
 	docker-compose -f docker-compose-test.yml run test
 
-test-local:
-	pip install -r test_requirements.txt && pytest
-
 lint:
-	pip install flake8 && flake8
+	flake8
 
 release:
 	python setup.py sdist bdist_wheel &&\
