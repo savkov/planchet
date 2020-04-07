@@ -7,9 +7,9 @@ from fastapi import FastAPI, HTTPException
 from redis import Redis
 from redis.exceptions import ConnectionError
 
-from planchet.core import Job, COMPLETE
+from planchet.core import Job, COMPLETE, READ_ONLY, WRITE_ONLY, READ_WRITE
 from planchet.config import REDIS_HOST, REDIS_PORT, REDIS_PWD, MAX_PACKAGE_SIZE
-import planchet.io as io
+import planchet.io as io_module
 import planchet.util as util
 
 _fmt = '%(message)s'
@@ -54,22 +54,22 @@ except ConnectionError:
 @app.post("/scramble")
 def scramble(job_name: str, metadata: Dict, reader_name: str,
              writer_name: str, clean_start: bool = False,
-             dumping: bool = False):
+             io: str = READ_WRITE):
     logging.info(util.pink(
         f'SCRAMBLING: name->{job_name}; metadata->{metadata}; '
         f'reader_name->{reader_name}; writer_name->{writer_name}; '
         f'clean_start->{clean_start}'))
     try:
-        reader: Callable = getattr(io, reader_name)(metadata) \
+        reader: Callable = getattr(io_module, reader_name)(metadata) \
             if reader_name else None
-        writer: Callable = getattr(io, writer_name)(metadata)
+        writer: Callable = getattr(io_module, writer_name)(metadata)
     except FileNotFoundError as e:
         logging.error(e)
         raise HTTPException(status_code=400, detail=str(e))
     except PermissionError as e:
         logging.error(e)
         raise HTTPException(status_code=400, detail=str(e))
-    new_job: Job = Job(job_name, reader, writer, LEDGER)
+    new_job: Job = Job(job_name, reader, writer, LEDGER, io)
     # clean ledger before starting
     if clean_start:
         new_job.restart()
@@ -81,7 +81,7 @@ def scramble(job_name: str, metadata: Dict, reader_name: str,
     # TODO: move this in a method inside the Job class and call here
     LEDGER.set(f'JOB:{job_name}', json.dumps({
         'metadata': metadata, 'reader_name': reader_name,
-        'writer_name': writer_name, 'dumping': dumping}))
+        'writer_name': writer_name, 'io': io}))
 
 
 @app.post("/serve")
@@ -94,6 +94,8 @@ def serve(job_name: str, batch_size: int = 100) -> List:
         no_known_msg = f'No known job: {job_name}'
         msg = no_active_msg if active else no_known_msg
         raise HTTPException(status_code=400, detail=msg)
+    if job.io == WRITE_ONLY:
+        raise HTTPException(400, 'Trying to read from a write-only job')
     return job.serve(batch_size)
 
 
@@ -107,6 +109,8 @@ def receive(job_name: str, items: List[Tuple[int, Union[Dict, List]]],
         logging.error(util.red(msg))
         raise HTTPException(status_code=413, detail=msg)
     job = JOB_LOG[job_name]
+    if job.io == READ_ONLY:
+        raise HTTPException(400, 'Trying to send to a read-only job')
     job.receive(items, overwrite)
     if job.status == COMPLETE:
         LEDGER.set(_job_id(job_name), COMPLETE)

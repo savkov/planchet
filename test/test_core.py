@@ -9,7 +9,7 @@ from typing import Dict
 import pytest
 
 from planchet import Job
-from planchet.core import COMPLETE, IN_PROGRESS, RECEIVED, SERVED
+from planchet.core import COMPLETE, IN_PROGRESS, RECEIVED, SERVED, WRITE_ONLY, READ_ONLY
 
 
 @pytest.mark.parametrize('batch_size', [1, 2, 5, 10, 13, 30, 32])
@@ -128,8 +128,8 @@ def test_stats(job):
     assert stats['status'] == IN_PROGRESS
 
 
-def test_dumpjob(writer, ledger):
-    job = Job('dumping-job', None, writer, ledger, True)
+def test_writing_job(writer, ledger):
+    job = Job('dumping-job', None, writer, ledger, WRITE_ONLY)
     items = [
         (1, ['val1', 'val2']),
         (2, ['val1', 'val2']),
@@ -142,3 +142,10 @@ def test_dumpjob(writer, ledger):
             assert len(line.split(',')) == 2
     assert i == 3
     assert len(list([item for item in ledger.scan_iter('dumping-job:*')])) == 3
+
+
+def test_reading_job(reader, ledger):
+    job = Job('dumping-job', reader, None, ledger, READ_ONLY)
+    n_items = 5
+    items = job.serve(n_items)
+    assert items, items

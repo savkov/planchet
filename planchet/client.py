@@ -13,11 +13,12 @@ class PlanchetClient:
 
     def start_job(self, job_name: str, metadata: Dict, reader_name: str,
                   writer_name: str, clean_start: bool = False,
-                  retries: int = 1) -> Response:
+                  retries: int = 1, io: str = 'read-write') -> Response:
         params = {
             'job_name': job_name,
             'reader_name': reader_name,
             'writer_name': writer_name,
+            'io': io,
             'clean_start': clean_start
         }
         param_string = '&'.join([f'{k}={v}' for k, v in params.items()])

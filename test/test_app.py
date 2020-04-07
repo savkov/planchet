@@ -3,6 +3,7 @@ import os
 
 import pytest
 
+from planchet.core import WRITE_ONLY, READ_ONLY
 from .const import TEST_JOB_NAME
 
 
@@ -63,12 +64,13 @@ def test_scramble_continue(client, job_params, metadata):
 
 
 @pytest.mark.local
-def test_scramble_dumping_job(client, metadata_client):
+def test_scramble_writing_job(client, metadata_client):
     job_params = {
         'job_name': TEST_JOB_NAME,
         'reader_name': '',
         'writer_name': 'CsvWriter',
-        'clean_start': 'false'
+        'clean_start': 'false',
+        'io': WRITE_ONLY
     }
     param_string = _make_param_string(job_params)
     response = client.post(
@@ -76,6 +78,46 @@ def test_scramble_dumping_job(client, metadata_client):
         json=metadata_client
     )
     assert response.status_code == 200, response.text
+    items = [
+        (1, ['val1', 'val2']),
+        (2, ['val1', 'val2']),
+        (3, ['val1', 'val2']),
+    ]
+    response = client.post(
+        f'/receive?job_name={TEST_JOB_NAME}&overwrite=false',
+        json=items
+    )
+    assert response.status_code == 200, response.text
+
+
+@pytest.mark.local
+def test_scramble_reading_job(client, metadata_client):
+    job_params = {
+        'job_name': TEST_JOB_NAME,
+        'reader_name': 'CsvReader',
+        'writer_name': '',
+        'clean_start': 'false',
+        'io': READ_ONLY
+    }
+    param_string = _make_param_string(job_params)
+    response = client.post(
+        f'/scramble?{param_string}',
+        json=metadata_client
+    )
+    assert response.status_code == 200, response.text
+    items = [
+        (1, ['val1', 'val2']),
+        (2, ['val1', 'val2']),
+        (3, ['val1', 'val2']),
+    ]
+    n_items = 3
+    response = client.post(
+        f'/serve?job_name={TEST_JOB_NAME}&batch_size={n_items}',
+        json=items
+    )
+    assert response.status_code == 200, response.text
+    items = json.loads(response.text)
+    assert len(items) == n_items
 
 
 @pytest.mark.local
