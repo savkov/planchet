@@ -39,7 +39,7 @@ def input_fp(data):
 
 @pytest.fixture()
 def input_fp_client(data):
-    fp = '/data/_client_input_file.csv'
+    fp = '/data/client_input_file.csv'
     with open(fp, 'w') as fh:
         fh.write(data)
     yield fp

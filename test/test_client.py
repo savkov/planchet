@@ -1,3 +1,5 @@
+import json
+
 import pytest
 
 from .const import TEST_JOB_NAME
@@ -24,16 +26,17 @@ def test_delete_job(planchet_client, live_ledger):
 
 @pytest.mark.local
 def test_check(planchet_client):
-    foo = planchet_client.check()
-    assert foo, foo
+    response = planchet_client.check()
+    assert response.status_code and json.loads(response.text), response
 
 
 @pytest.mark.local
 def test_get_job_report(planchet_client, live_ledger, metadata_client):
     assert planchet_client.check()['Redis status'] == 'Online', 'Redis offline'
     live_ledger.delete(f'JOB:{TEST_JOB_NAME}')
-    planchet_client.start_job(TEST_JOB_NAME, metadata_client, 'CsvReader',
-                              'CsvWriter')
+    response = planchet_client.start_job(TEST_JOB_NAME, metadata_client,
+                                         'CsvReader', 'CsvWriter')
+    assert response.status_code == 200, response
     report = planchet_client.get_job_report(TEST_JOB_NAME)
     assert report, report
 
@@ -42,8 +45,9 @@ def test_get_job_report(planchet_client, live_ledger, metadata_client):
 def test_get(planchet_client, live_ledger, metadata_client):
     assert planchet_client.check()['Redis status'] == 'Online', 'Redis offline'
     live_ledger.delete(f'JOB:{TEST_JOB_NAME}')
-    planchet_client.start_job(TEST_JOB_NAME, metadata_client, 'CsvReader',
-                              'CsvWriter')
+    response = planchet_client.start_job(TEST_JOB_NAME, metadata_client,
+                                         'CsvReader', 'CsvWriter')
+    assert response.status_code == 200, response
     n_items = 20
     items = planchet_client.get(TEST_JOB_NAME, n_items)
     assert len(items) == n_items, items
@@ -53,8 +57,9 @@ def test_get(planchet_client, live_ledger, metadata_client):
 def test_send(planchet_client, live_ledger, metadata_client):
     assert planchet_client.check()['Redis status'] == 'Online', 'Redis offline'
     live_ledger.delete(f'JOB:{TEST_JOB_NAME}')
-    planchet_client.start_job(TEST_JOB_NAME, metadata_client, 'CsvReader',
-                              'CsvWriter')
+    response = planchet_client.start_job(TEST_JOB_NAME, metadata_client,
+                                         'CsvReader', 'CsvWriter')
+    assert response.status_code == 200, response
     n_items = 20
     items = planchet_client.get(TEST_JOB_NAME, n_items)
     assert len(items) == n_items, items
