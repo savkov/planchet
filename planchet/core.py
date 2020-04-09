@@ -7,6 +7,7 @@ from planchet import io
 
 SERVED = 'SERVED'
 RECEIVED = 'RECEIVED'
+ERROR = 'ERROR'
 
 IN_PROGRESS = 'IN_PROGRESS'
 COMPLETE = 'COMPLETE'
@@ -61,6 +62,13 @@ class Job:
         for id_ in ids:
             self.received.add(id_)
             self.ledger.set(self.ledger_id(id_), RECEIVED)
+
+    def mark_errors(self, ids):
+        for id_ in ids:
+            value = self.ledger.get(self.ledger_id(id_))
+            if value and value.decode('utf8') == RECEIVED:
+                raise ValueError(f'Item already received: {id_}')
+            self.ledger.set(self.ledger_id(id_), ERROR)
 
     def restart(self):
         for key in self.ledger.scan_iter(f'{self.name}:*'):

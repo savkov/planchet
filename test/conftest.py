@@ -4,7 +4,7 @@ from fastapi.testclient import TestClient
 import pytest
 import fakeredis
 
-from planchet.core import Job
+from planchet.core import Job, READ_ONLY, WRITE_ONLY
 from planchet.io import CsvReader, CsvWriter
 from planchet.client import PlanchetClient
 from planchet.config import REDIS_HOST, REDIS_PORT, REDIS_PWD
@@ -82,6 +82,15 @@ def metadata_client(input_fp_client, output_fp_client):
 
 
 @pytest.fixture(scope='function')
+def csv_items():
+    return [
+        (1, ['val1', 'val2']),
+        (2, ['val1', 'val2']),
+        (3, ['val1', 'val2']),
+    ]
+
+
+@pytest.fixture(scope='function')
 def client():
     assert LEDGER is not None, f'Cannot connect to redis during testing: ' \
                                f'{REDIS_HOST}:{REDIS_PORT} using password {bool(REDIS_PWD)}'
@@ -91,9 +100,13 @@ def client():
         LEDGER.delete(k)
 
 
-@pytest.fixture()
+@pytest.fixture(scope='function')
 def ledger():
-    return fakeredis.FakeRedis()
+    r = fakeredis.FakeRedis()
+    yield r
+    # clean up
+    for k in r.scan_iter(f'*'):
+        r.delete(k)
 
 
 @pytest.fixture()
@@ -120,5 +133,17 @@ def writer(output_fp):
 
 @pytest.fixture(scope='function')
 def job(reader, writer, ledger):
-    jobname = 'somejob'
-    return Job(jobname, reader, writer, ledger)
+    job_name = 'somejob'
+    yield Job(job_name, reader, writer, ledger)
+
+
+@pytest.fixture(scope='function')
+def reading_job(reader, ledger):
+    job_name = 'reading-job'
+    yield Job(job_name, reader, None, ledger, READ_ONLY)
+
+
+@pytest.fixture(scope='function')
+def writing_job(writer, ledger):
+    job_name = 'writing-job'
+    yield Job(job_name, None, writer, ledger, WRITE_ONLY)
