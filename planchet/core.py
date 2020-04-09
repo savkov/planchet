@@ -1,9 +1,13 @@
 import json
+import logging
 from typing import Callable, List, Dict, Union, Tuple
 
 from redis import Redis
 
 from planchet import io
+
+_fmt = '%(message)s'
+logging.basicConfig(level=logging.DEBUG, format=_fmt)
 
 SERVED = 'SERVED'
 RECEIVED = 'RECEIVED'
@@ -66,8 +70,9 @@ class Job:
     def mark_errors(self, ids):
         for id_ in ids:
             value = self.ledger.get(self.ledger_id(id_))
-            print(id_, value)
+            logging.info('CORE:MARK_ERRORS: ' + str(id_) + str(value))
             if value and value.decode('utf8') == RECEIVED:
+                logging.error(f'Trying to mark as error a received item: {id_}')
                 raise ValueError(f'Item already received: {id_}')
             self.ledger.set(self.ledger_id(id_), ERROR)
 
