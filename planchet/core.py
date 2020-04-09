@@ -70,7 +70,6 @@ class Job:
     def mark_errors(self, ids):
         for id_ in ids:
             value = self.ledger.get(self.ledger_id(id_))
-            logging.info('CORE:MARK_ERRORS: ' + str(id_) + str(value))
             if value and value.decode('utf8') == RECEIVED:
                 logging.error(f'Trying to mark as error a received item: {id_}')
                 raise ValueError(f'Item already received: {id_}')

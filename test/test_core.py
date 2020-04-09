@@ -161,5 +161,4 @@ def test_mark_errors_received(job, ledger):
     with pytest.raises(ValueError):
         job.mark_errors(ids)
     keys = ledger.scan_iter(f'{job.name}:*')
-    print(keys)
     assert all([ledger.get(k).decode('utf8') == RECEIVED for k in keys])

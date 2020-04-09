@@ -11,15 +11,14 @@ COPY requirements.txt /opt/project/
 RUN pip install -r /opt/project/requirements.txt && \
     mkdir /data && chown -R planchet /data
 
-RUN chmod -R a+w /data
-
 # copy the project
 COPY ./ /opt/project
 
 # set working directory
 WORKDIR /opt/project
 
+# DISABLED UNTIL DOCKER SORT THEIR SHIT
 # switch to non-root user
-USER planchet
+# USER planchet
 
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--workers", "1", "--port", "5005"]

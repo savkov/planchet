@@ -204,7 +204,6 @@ def test_mark_errors_receive(client, job_params, metadata):
         json=items
     )
     ids = [id_ for id_, _ in items]
-    print(ids)
     assert response.status_code == 200, response.text
     response = client.post(
         f'/mark-errors?job_name={TEST_JOB_NAME}',

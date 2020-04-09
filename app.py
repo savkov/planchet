@@ -120,7 +120,6 @@ def receive(job_name: str, items: List[Tuple[int, Union[Dict, List]]],
 @app.post("/mark-errors")
 def mark_errors(job_name: str, ids: List[int]):
     job = JOB_LOG[job_name]
-    logging.info('APP:MARK_ERRORS: ' + str(ids))
     try:
         job.mark_errors(ids)
     except ValueError as e:
