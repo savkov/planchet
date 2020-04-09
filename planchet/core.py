@@ -66,6 +66,7 @@ class Job:
     def mark_errors(self, ids):
         for id_ in ids:
             value = self.ledger.get(self.ledger_id(id_))
+            print(id_, value)
             if value and value.decode('utf8') == RECEIVED:
                 raise ValueError(f'Item already received: {id_}')
             self.ledger.set(self.ledger_id(id_), ERROR)
