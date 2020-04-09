@@ -71,7 +71,7 @@ class Job:
         for id_ in ids:
             value = self.ledger.get(self.ledger_id(id_))
             if value and value.decode('utf8') == RECEIVED:
-                logging.error(f'Trying to mark as error a received item: {id_}')
+                logging.error(f'Attempting to mark a received item: {id_}')
                 raise ValueError(f'Item already received: {id_}')
             self.ledger.set(self.ledger_id(id_), ERROR)
 
