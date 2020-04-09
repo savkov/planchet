@@ -81,7 +81,7 @@ def test_mark_errors(planchet_client, live_ledger, metadata_client):
 
 
 @pytest.mark.local
-def test_mark_errors(planchet_client, live_ledger, metadata_client):
+def test_mark_errors_received(planchet_client, live_ledger, metadata_client):
     assert planchet_client.check()['Redis status'] == 'Online', 'Redis offline'
     live_ledger.delete(f'JOB:{TEST_JOB_NAME}')
     response = planchet_client.start_job(TEST_JOB_NAME, metadata_client,
