@@ -127,24 +127,38 @@ def test_stats(job):
     assert stats['status'] == IN_PROGRESS
 
 
-def test_writing_job(writer, ledger):
-    job = Job('dumping-job', None, writer, ledger, WRITE_ONLY)
-    items = [
-        (1, ['val1', 'val2']),
-        (2, ['val1', 'val2']),
-        (3, ['val1', 'val2']),
-    ]
-    job.receive(items, False)
-    assert os.path.exists(writer.file_path)
-    with open(writer.file_path) as fh:
+def test_writing_job(writing_job, output_fp, ledger, csv_items):
+    writing_job.receive(csv_items, False)
+    assert os.path.exists(output_fp)
+    with open(output_fp) as fh:
         for i, line in enumerate(fh, start=1):
             assert len(line.split(',')) == 2
-    assert i == 3
-    assert len(list([item for item in ledger.scan_iter('dumping-job:*')])) == 3
+    n_items = len(csv_items)
+    assert i == n_items
+    keys = ledger.scan_iter(f'{writing_job.name}:*')
+    assert len(list([k for k in keys])) == n_items
 
 
-def test_reading_job(reader, ledger):
-    job = Job('dumping-job', reader, None, ledger, READ_ONLY)
+def test_reading_job(reading_job):
     n_items = 5
-    items = job.serve(n_items)
+    items = reading_job.serve(n_items)
     assert items, items
+
+
+def test_mark_errors(job, ledger):
+    ids = [1, 2, 3, 4]
+    job.mark_errors(ids)
+    records = ledger.scan_iter(f'{job.name}:*')
+    items = [int(itm.decode('utf8')[-1]) for itm in records]
+    assert items == ids
+
+
+def test_mark_errors_received(job, ledger):
+    n_items = 10
+    items = job.serve(n_items)
+    ids = [id_ for id_, _ in items]
+    job.receive(items, False)
+    with pytest.raises(ValueError):
+        job.mark_errors(ids)
+    keys = ledger.scan_iter(f'{job.name}:*')
+    assert all([ledger.get(k).decode('utf8') == RECEIVED for k in keys])

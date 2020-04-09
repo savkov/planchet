@@ -17,7 +17,8 @@ COPY ./ /opt/project
 # set working directory
 WORKDIR /opt/project
 
+# DISABLED UNTIL DOCKER SORT THEIR SHIT
 # switch to non-root user
-USER planchet
+# USER planchet
 
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--workers", "1", "--port", "5005"]

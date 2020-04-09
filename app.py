@@ -117,6 +117,15 @@ def receive(job_name: str, items: List[Tuple[int, Union[Dict, List]]],
         LEDGER.set(_job_id(job_name), COMPLETE)
 
 
+@app.post("/mark-errors")
+def mark_errors(job_name: str, ids: List[int]):
+    job = JOB_LOG[job_name]
+    try:
+        job.mark_errors(ids)
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+
+
 @app.get('/delete')
 def delete(job_name: str):
     try:

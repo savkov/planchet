@@ -53,6 +53,13 @@ class PlanchetClient:
             json=items
         )
 
+    def mark_errors(self, job_name: str, ids: List[int], retries: int = 1):
+        session = requests_retry_session(retries=retries)
+        return session.post(
+            url=f'{self.url}mark-errors?job_name={job_name}',
+            json=ids
+        )
+
     def check(self, retries: int = 5) -> Response:
         session = requests_retry_session(retries=retries)
         response = session.get(url=f'{self.url}health')

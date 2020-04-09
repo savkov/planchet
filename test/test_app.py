@@ -64,7 +64,7 @@ def test_scramble_continue(client, job_params, metadata):
 
 
 @pytest.mark.local
-def test_scramble_writing_job(client, metadata_client):
+def test_scramble_writing_job(client, metadata_client, csv_items):
     job_params = {
         'job_name': TEST_JOB_NAME,
         'reader_name': '',
@@ -78,25 +78,20 @@ def test_scramble_writing_job(client, metadata_client):
         json=metadata_client
     )
     assert response.status_code == 200, response.text
-    items = [
-        (1, ['val1', 'val2']),
-        (2, ['val1', 'val2']),
-        (3, ['val1', 'val2']),
-    ]
     response = client.post(
         f'/receive?job_name={TEST_JOB_NAME}&overwrite=false',
-        json=items
+        json=csv_items
     )
     assert response.status_code == 200, response.text
     response = client.post(
         f'/serve?job_name={TEST_JOB_NAME}&batch_size=10',
-        json=items
+        json=csv_items
     )
     assert response.status_code == 400, response.text
 
 
 @pytest.mark.local
-def test_scramble_reading_job(client, metadata_client):
+def test_scramble_reading_job(client, metadata_client, csv_items):
     job_params = {
         'job_name': TEST_JOB_NAME,
         'reader_name': 'CsvReader',
@@ -110,15 +105,10 @@ def test_scramble_reading_job(client, metadata_client):
         json=metadata_client
     )
     assert response.status_code == 200, response.text
-    items = [
-        (1, ['val1', 'val2']),
-        (2, ['val1', 'val2']),
-        (3, ['val1', 'val2']),
-    ]
-    n_items = 3
+    n_items = len(csv_items)
     response = client.post(
         f'/serve?job_name={TEST_JOB_NAME}&batch_size={n_items}',
-        json=items
+        json=csv_items
     )
     assert response.status_code == 200, response.text
     items = json.loads(response.text)
@@ -182,3 +172,41 @@ def test_delete(client):
     response = client.get(f'/report?job_name={TEST_JOB_NAME}')
     assert not json.loads(response.text), response.text
     os.remove(input_fp)
+
+
+@pytest.mark.local
+def test_mark_errors(client, job_params, metadata):
+    param_string = _make_param_string(job_params)
+    client.post(
+        f'/scramble?{param_string}',
+        json=metadata
+    )
+    fake_ids = [1, 2, 3]
+    response = client.post(
+        f'/mark-errors?job_name={TEST_JOB_NAME}',
+        json=fake_ids
+    )
+    assert response.status_code == 200, response.text
+
+
+@pytest.mark.local
+def test_mark_errors_receive(client, job_params, metadata):
+    param_string = _make_param_string(job_params)
+    client.post(
+        f'/scramble?{param_string}',
+        json=metadata
+    )
+    items = json.loads(
+        client.post(f'/serve?job_name={TEST_JOB_NAME}&batch_size=5').text
+    )
+    response = client.post(
+        f'/receive?job_name={TEST_JOB_NAME}&overwrite=false',
+        json=items
+    )
+    ids = [id_ for id_, _ in items]
+    assert response.status_code == 200, response.text
+    response = client.post(
+        f'/mark-errors?job_name={TEST_JOB_NAME}',
+        json=ids
+    )
+    assert response.status_code == 400, response.text
