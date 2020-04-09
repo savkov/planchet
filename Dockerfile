@@ -11,6 +11,8 @@ COPY requirements.txt /opt/project/
 RUN pip install -r /opt/project/requirements.txt && \
     mkdir /data && chown -R planchet /data
 
+RUN chmod -R a+w /data
+
 # copy the project
 COPY ./ /opt/project
 
