@@ -39,13 +39,18 @@ class Job:
     def serve(self, n_items: int) -> List:
         items: List = []
         while len(items) < n_items:
-            buff = self.reader(n_items - len(items))
+            bs = n_items - len(items)
+            buff = self.reader(bs)
             for id_, item in buff:
-                self.served.add(id_)
-                status = self.ledger.exists(self.ledger_id(id_))
-                if not bool(status) or (self.cont and status != RECEIVED):
+                status = self.ledger.get(self.ledger_id(id_))
+                if not bool(status) or (
+                        self.cont and
+                        status and
+                        status.decode('utf8') == SERVED
+                ):
                     items.append((id_, item))
                     self.ledger.set(self.ledger_id(id_), SERVED)
+                    self.served.add(id_)
             if not buff:
                 self.exhausted = True
                 break
@@ -125,7 +130,6 @@ class Job:
             if value == SERVED:
                 job.served.add(id_)
             elif value == RECEIVED:
-                job.served.add(id_)
                 job.received.add(id_)
 
     @staticmethod

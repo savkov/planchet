@@ -70,10 +70,17 @@ def scramble(job_name: str, metadata: Dict, reader_name: str,
     except PermissionError as e:
         logging.error(e)
         raise HTTPException(status_code=400, detail=str(e))
-    # pick up where you left off
-    if LEDGER.get(f'JOB:{job_name}') and not clean_start:
+    existing_job = LEDGER.get(f'JOB:{job_name}')
+    # trying to re-create an existing job
+    if existing_job and (not clean_start and not cont):
         msg = f'Job {job_name} already exists.'
         raise HTTPException(status_code=400, detail=msg)
+    # continue where you left off
+    if existing_job and cont:
+        job = JOB_LOG[job_name]
+        job.clean()
+        del job
+        del JOB_LOG[job_name]
     new_job: Job = Job(job_name, reader, writer, LEDGER, mode, cont)
     # clean ledger before starting
     if clean_start:
@@ -112,6 +119,8 @@ def receive(job_name: str, items: List[Tuple[int, Union[Dict, List]]],
     job = JOB_LOG[job_name]
     if job.mode == READ_ONLY:
         raise HTTPException(400, 'Trying to send to a read-only job')
+    if not job.writer:
+        raise HTTPException(400, 'No valid writer initialised')
     job.receive(items, overwrite)
     if job.status == COMPLETE:
         LEDGER.set(_job_id(job_name), COMPLETE)

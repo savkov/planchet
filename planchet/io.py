@@ -17,11 +17,22 @@ class CsvReader:
         self.file_iter: TextFileReader = \
             pd.read_csv(self.file_path, iterator=True,
                         chunksize=self.chunk_size)
+        self.df_iter = self._next_fp_it()
+        self.idx = 0
+
+    def _next_fp_it(self):
+        return next(self.file_iter).iterrows()
 
     def _iterator(self):
-        for df_chunk in self.file_iter:
-            for i, row in df_chunk.iterrows():
-                yield i, row
+        while True:
+            for _, row in self.df_iter:
+                idx = self.idx
+                self.idx += 1
+                yield idx, row
+            try:
+                self.df_iter = self._next_fp_it()
+            except StopIteration:
+                break
 
     def __call__(self, batch_size: int):
         batch: List = []
