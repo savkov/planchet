@@ -93,10 +93,11 @@ def csv_items():
 @pytest.fixture(scope='function')
 def client():
     assert LEDGER is not None, f'Cannot connect to redis during testing: ' \
-                               f'{REDIS_HOST}:{REDIS_PORT} using password {bool(REDIS_PWD)}'
+                               f'{REDIS_HOST}:{REDIS_PORT} using password ' \
+                               f'{bool(REDIS_PWD)}'
     yield TestClient(app)
     LEDGER.delete(f'JOB:{TEST_JOB_NAME}')
-    for k in LEDGER.scan_iter(f'{TEST_JOB_NAME}:*'):
+    for k in list(LEDGER.scan_iter(f'{TEST_JOB_NAME}:*')):
         LEDGER.delete(k)
 
 
@@ -105,7 +106,7 @@ def ledger():
     r = fakeredis.FakeRedis()
     yield r
     # clean up
-    for k in r.scan_iter(f'*'):
+    for k in list(r.scan_iter(f'*')):
         r.delete(k)
 
 
@@ -113,7 +114,7 @@ def ledger():
 def live_ledger():
     yield LEDGER
     LEDGER.delete(f'JOB:{TEST_JOB_NAME}')
-    for key in LEDGER.scan_iter(f'{TEST_JOB_NAME}:*'):
+    for key in list(LEDGER.scan_iter(f'{TEST_JOB_NAME}:*')):
         LEDGER.delete(key)
 
 
