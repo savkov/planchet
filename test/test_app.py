@@ -210,3 +210,31 @@ def test_mark_errors_receive(client, job_params, metadata):
         json=ids
     )
     assert response.status_code == 400, response.text
+
+
+@pytest.mark.local
+def test_clean(client, job_params, metadata):
+    n_served = 10
+    n_received = 5
+    param_string = _make_param_string(job_params)
+    client.post(
+        f'/scramble?{param_string}',
+        json=metadata
+    )
+    items = json.loads(
+        client.post(f'/serve?job_name={TEST_JOB_NAME}&'
+                    f'batch_size={n_served}').text
+    )
+    response = client.post(
+        f'/receive?job_name={TEST_JOB_NAME}&overwrite=false',
+        json=items[:n_received]
+    )
+    assert response.status_code == 200, response.text
+    response = client.get(f'/clean?job_name={TEST_JOB_NAME}')
+    assert response.status_code == 200, response.text
+    response = client.get(f'/report?job_name={TEST_JOB_NAME}')
+    assert response.status_code == 200, response.text
+    report = json.loads(response.text)
+    assert report['served'] == 0
+    assert report['received'] == n_received
+

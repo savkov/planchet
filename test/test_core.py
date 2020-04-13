@@ -8,7 +8,8 @@ from .const import CSV_SIZE
 from typing import Dict
 import pytest
 
-from planchet.core import Job, COMPLETE, IN_PROGRESS, RECEIVED, SERVED, WRITE_ONLY, READ_ONLY
+from planchet.core import Job, COMPLETE, IN_PROGRESS, RECEIVED, SERVED, \
+    WRITE_ONLY, READ_ONLY, READ_WRITE
 
 
 @pytest.mark.parametrize('batch_size', [1, 2, 5, 10, 13, 30, 32])
@@ -63,7 +64,7 @@ def test_restore_job(reader, writer, ledger):
         'metadata': metadata,
         'reader_name': type(reader).__name__,
         'writer_name': type(writer).__name__,
-        'dumping': False
+        'mode': READ_WRITE
     })
     ledger.set(job_key, value)
     n_skips: int = 10
@@ -115,6 +116,24 @@ def test_receive(job):
     assert set(int(x.decode('utf8').rsplit(':')[1]) for x in served) == active
 
 
+def test_receive_cont(job):
+    jobname = job.name
+    ledger = job.ledger
+    items = job.serve(CSV_SIZE)
+    n_processed = 10
+    job.receive(items[:n_processed], False)
+    cont_job = Job(job.name, job.reader, job.writer, job.ledger, job.mode, True)
+    cont_job.receive(items[n_processed:], False)
+    received = [x for x in ledger.scan_iter(f'{jobname}*')
+                if ledger.get(x).decode('utf8') == RECEIVED]
+    served = [x for x in ledger.scan_iter(f'{jobname}*')
+              if ledger.get(x).decode('utf8') == SERVED]
+
+    assert len(received) == CSV_SIZE
+    assert len(cont_job.received) == CSV_SIZE
+    assert len(served) == 0
+
+
 def test_stats(job):
     n_served = 10
     n_received = 2
@@ -122,8 +141,8 @@ def test_stats(job):
     job.receive(served[:n_received], False)
     job.receive(served[:n_received], True)
     stats = job.stats
-    assert stats['served'] == n_served
-    assert stats['received'] == 2
+    assert stats['served'] == n_served - n_received
+    assert stats['received'] == n_received
     assert stats['status'] == IN_PROGRESS
 
 
@@ -162,3 +181,22 @@ def test_mark_errors_received(job, ledger):
         job.mark_errors(ids)
     keys = ledger.scan_iter(f'{job.name}:*')
     assert all([ledger.get(k).decode('utf8') == RECEIVED for k in keys])
+
+
+def test_clean(job):
+    job_name = job.name
+    ledger = job.ledger
+    for key in list(ledger.scan_iter(f'{job_name}:*')):
+        ledger.delete(key)
+    items = job.serve(CSV_SIZE)
+    q_string = f'{job_name}:*'
+    n_processed = 10
+    job.receive(items[:n_processed], False)
+    job.clean()
+    received = [x for x in ledger.scan_iter(f'{job_name}*')
+                if ledger.get(x).decode('utf8') == RECEIVED]
+    served = [x for x in ledger.scan_iter(f'{job_name}*')
+              if ledger.get(x).decode('utf8') == SERVED]
+
+    assert len(received) == len(job.received) == n_processed
+    assert len(served) == len(job.served) == 0

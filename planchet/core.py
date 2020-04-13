@@ -23,7 +23,8 @@ READ_WRITE = 'read-write'
 
 class Job:
     def __init__(self, name: str, reader: Callable, writer: Callable,
-                 ledger: Redis, mode: str = READ_WRITE):
+                 ledger: Redis, mode: str = READ_WRITE,
+                 cont: bool = False):
         self.name = name
         self.reader = reader
         self.writer = writer
@@ -32,6 +33,7 @@ class Job:
         self.served = set()
         self.received = set()
         self.exhausted = False
+        self.cont = cont
         self.restore_records(self)
 
     def serve(self, n_items: int) -> List:
@@ -40,7 +42,8 @@ class Job:
             buff = self.reader(n_items - len(items))
             for id_, item in buff:
                 self.served.add(id_)
-                if not self.ledger.exists(self.ledger_id(id_)):
+                status = self.ledger.exists(self.ledger_id(id_))
+                if not bool(status) or (self.cont and status != RECEIVED):
                     items.append((id_, item))
                     self.ledger.set(self.ledger_id(id_), SERVED)
             if not buff:
@@ -65,6 +68,7 @@ class Job:
         self.writer(data)
         for id_ in ids:
             self.received.add(id_)
+            self.served.discard(id_)
             self.ledger.set(self.ledger_id(id_), RECEIVED)
 
     def mark_errors(self, ids):
@@ -76,15 +80,27 @@ class Job:
             self.ledger.set(self.ledger_id(id_), ERROR)
 
     def restart(self):
-        for key in self.ledger.scan_iter(f'{self.name}:*'):
+        for key in list(self.ledger.scan_iter(f'{self.name}:*')):
             self.ledger.delete(key)
         self.served = set()
         self.received = set()
         self.exhausted = False
 
+    def clean(self):
+        served = []
+        q_string = f'{self.name}:*'
+        for i, key in enumerate(self.ledger.scan_iter(q_string)):
+            value = self.ledger.get(key).decode('utf8')
+            if value == SERVED:
+                served.append(key)
+        for key in served:
+            self.ledger.delete(key)
+            _, id_ = key.decode('utf8').split(':', 1)
+            self.served.discard(int(id_))
+
     @property
     def status(self):
-        if self.exhausted and len(self.served) == len(self.received):
+        if self.exhausted and not self.served:
             return COMPLETE
         else:
             return IN_PROGRESS
@@ -104,7 +120,7 @@ class Job:
     def restore_records(job):
         keys = job.ledger.scan_iter(f'{job.name}:*')
         for key in keys:
-            _, id_ = key.decode('utf8').split(':', 1)
+            id_ = int(key.decode('utf8').split(':', 1)[1])
             value = job.ledger.get(key).decode('utf8')
             if value == SERVED:
                 job.served.add(id_)
@@ -123,6 +139,6 @@ class Job:
         metadata = record['metadata']
         reader: Callable = getattr(io, reader_name)(metadata)
         writer: Callable = getattr(io, writer_name)(metadata)
-        dumping: bool = record['dumping']
-        job: Job = Job(job_name, reader, writer, ledger, dumping)
+        mode: str = record['mode']
+        job: Job = Job(job_name, reader, writer, ledger, mode)
         return job

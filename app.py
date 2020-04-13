@@ -54,7 +54,7 @@ except ConnectionError:
 @app.post("/scramble")
 def scramble(job_name: str, metadata: Dict, reader_name: str,
              writer_name: str, clean_start: bool = False,
-             mode: str = READ_WRITE):
+             mode: str = READ_WRITE, cont: bool = False):
     logging.info(util.pink(
         f'SCRAMBLING: name->{job_name}; metadata->{metadata}; '
         f'reader_name->{reader_name}; writer_name->{writer_name}; '
@@ -70,14 +70,14 @@ def scramble(job_name: str, metadata: Dict, reader_name: str,
     except PermissionError as e:
         logging.error(e)
         raise HTTPException(status_code=400, detail=str(e))
-    new_job: Job = Job(job_name, reader, writer, LEDGER, mode)
+    # pick up where you left off
+    if LEDGER.get(f'JOB:{job_name}') and not clean_start:
+        msg = f'Job {job_name} already exists.'
+        raise HTTPException(status_code=400, detail=msg)
+    new_job: Job = Job(job_name, reader, writer, LEDGER, mode, cont)
     # clean ledger before starting
     if clean_start:
         new_job.restart()
-    # pick up where you left off
-    elif LEDGER.get(f'JOB:{job_name}'):
-        msg = f'Job {job_name} already exists.'
-        raise HTTPException(status_code=400, detail=msg)
     JOB_LOG[job_name] = new_job
     # TODO: move this in a method inside the Job class and call here
     LEDGER.set(f'JOB:{job_name}', json.dumps({
@@ -105,8 +105,8 @@ def receive(job_name: str, items: List[Tuple[int, Union[Dict, List]]],
             overwrite: bool):
     size = sys.getsizeof(items)
     if size > MAX_PACKAGE_SIZE:
-        msg = f'In-memory paylod must be less than {MAX_PACKAGE_SIZE}; ' \
-              f'currentsize is {size}.'
+        msg = f'In-memory payload must be less than {MAX_PACKAGE_SIZE}; ' \
+              f'the current size is {size}.'
         logging.error(util.red(msg))
         raise HTTPException(status_code=413, detail=msg)
     job = JOB_LOG[job_name]
@@ -134,8 +134,19 @@ def delete(job_name: str):
         logging.info(util.pink(f'Could not find a job named "{job_name}"'))
         pass
     LEDGER.delete(f'JOB:{job_name}')
-    for record in LEDGER.scan_iter(f'{job_name}:*'):
+    for record in list(LEDGER.scan_iter(f'{job_name}:*')):
         LEDGER.delete(record)
+
+
+@app.get('/clean')
+def clean(job_name: str):
+    try:
+        job = JOB_LOG[job_name]
+    except KeyError:
+        msg = f'Could not find a job name "{job_name}"'
+        logging.info(util.pink(msg))
+        raise HTTPException(400, msg)
+    job.clean()
 
 
 @app.get("/report")
