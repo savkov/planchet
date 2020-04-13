@@ -5,7 +5,7 @@ exclude_lines =
 [run]
 omit =
     .venv/*
-    tests/*
+    test/*
     scripts/*
     setup.py
     check_release.py

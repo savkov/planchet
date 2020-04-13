@@ -3,12 +3,14 @@ import os
 
 from pydantic.typing import NoneType
 
+from planchet.io import CsvReader, CsvWriter
 from .const import CSV_SIZE
 
 from typing import Dict
 import pytest
 
-from planchet.core import Job, COMPLETE, IN_PROGRESS, RECEIVED, SERVED, WRITE_ONLY, READ_ONLY
+from planchet.core import Job, COMPLETE, IN_PROGRESS, RECEIVED, SERVED, \
+    READ_WRITE
 
 
 @pytest.mark.parametrize('batch_size', [1, 2, 5, 10, 13, 30, 32])
@@ -47,7 +49,7 @@ def test_restore_records(reader, writer, ledger):
     ledger.set(f'{job_name}:1', SERVED)
     job: Job = Job(job_name, reader, writer, ledger)
     assert len(job.received) == n_skips - 1
-    assert len(job.served) == n_skips
+    assert len(job.served) == 1
     items = job.serve(100)
     assert len(items) == CSV_SIZE - n_skips
 
@@ -63,7 +65,7 @@ def test_restore_job(reader, writer, ledger):
         'metadata': metadata,
         'reader_name': type(reader).__name__,
         'writer_name': type(writer).__name__,
-        'dumping': False
+        'mode': READ_WRITE
     })
     ledger.set(job_key, value)
     n_skips: int = 10
@@ -72,7 +74,7 @@ def test_restore_job(reader, writer, ledger):
     ledger.set(f'{job_name}:1', SERVED)
     job: Job = Job.restore_job(job_name, job_key, ledger)
     assert len(job.received) == n_skips - 1
-    assert len(job.served) == n_skips
+    assert len(job.served) == 1
     records = job.serve(100)
     assert len(records) == CSV_SIZE - n_skips
 
@@ -115,6 +117,32 @@ def test_receive(job):
     assert set(int(x.decode('utf8').rsplit(':')[1]) for x in served) == active
 
 
+def test_receive_cont(job):
+    n_served = 10
+    n_received = 5
+    job_name = job.name
+    ledger = job.ledger
+    items = job.serve(n_served)
+    job.receive(items[:n_received], False)
+    reader = CsvReader({'input_file_path': job.reader.file_path})
+    writer = CsvWriter({'output_file_path': job.writer.file_path})
+    del job
+    # we processed half the served items and we are making a new job
+    cont_job = Job(job_name, reader, writer, ledger, cont=True)
+    # requesting the second half of the items
+    print('serving')
+    items = cont_job.serve(n_served - n_received)
+    cont_job.receive(items, False)
+    # counting in the ledger
+    received = [x for x in ledger.scan_iter(f'{job_name}*')
+                if ledger.get(x).decode('utf8') == RECEIVED]
+    served = [x for x in ledger.scan_iter(f'{job_name}*')
+              if ledger.get(x).decode('utf8') == SERVED]
+    assert len(received) == n_served
+    assert len(cont_job.received) == n_served
+    assert len(served) == 0
+
+
 def test_stats(job):
     n_served = 10
     n_received = 2
@@ -122,8 +150,8 @@ def test_stats(job):
     job.receive(served[:n_received], False)
     job.receive(served[:n_received], True)
     stats = job.stats
-    assert stats['served'] == n_served
-    assert stats['received'] == 2
+    assert stats['served'] == n_served - n_received
+    assert stats['received'] == n_received
     assert stats['status'] == IN_PROGRESS
 
 
@@ -162,3 +190,21 @@ def test_mark_errors_received(job, ledger):
         job.mark_errors(ids)
     keys = ledger.scan_iter(f'{job.name}:*')
     assert all([ledger.get(k).decode('utf8') == RECEIVED for k in keys])
+
+
+def test_clean(job):
+    job_name = job.name
+    ledger = job.ledger
+    for key in list(ledger.scan_iter(f'{job_name}:*')):
+        ledger.delete(key)
+    items = job.serve(CSV_SIZE)
+    n_processed = 10
+    job.receive(items[:n_processed], False)
+    job.clean()
+    received = [x for x in ledger.scan_iter(f'{job_name}*')
+                if ledger.get(x).decode('utf8') == RECEIVED]
+    served = [x for x in ledger.scan_iter(f'{job_name}*')
+              if ledger.get(x).decode('utf8') == SERVED]
+
+    assert len(received) == len(job.received) == n_processed
+    assert len(served) == len(job.served) == 0
