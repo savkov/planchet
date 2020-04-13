@@ -6,4 +6,6 @@ exclude_lines =
 omit =
     .venv/*
     tests/*
+    scripts/*
     setup.py
+    check_release.py
