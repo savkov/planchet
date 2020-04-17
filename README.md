@@ -45,7 +45,7 @@ wrapper around `requests` that makes it easy to access the service API.
 You can use this repo and start streight away like this:
 ```bash
 git clone git@github.com:savkov/planchet.git
-export REDIS_PWD=<some-password>
+export PLANCHET_REDIS_PWD=<some-password>
 make install
 make run-redis
 make run
@@ -62,7 +62,7 @@ You can also run docker-compose from the git repo:
 
 ```shell script
 git clone git@github.com:savkov/planchet.git
-export REDIS_PWD=<some-password>
+export PLANCHET_REDIS_PWD=<some-password>
 docker-compose up
 ```
 
