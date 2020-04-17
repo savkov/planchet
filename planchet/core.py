@@ -141,8 +141,15 @@ class Job:
         reader_name = record['reader_name']
         writer_name = record['writer_name']
         metadata = record['metadata']
-        reader: Callable = getattr(io, reader_name)(metadata)
-        writer: Callable = getattr(io, writer_name)(metadata)
+        reader: Callable = get_io_object(reader_name, metadata)
+        writer: Callable = get_io_object(writer_name, metadata)
         mode: str = record['mode']
         job: Job = Job(job_name, reader, writer, ledger, mode)
         return job
+
+
+def get_io_object(name, metadata):
+    try:
+        return getattr(io, name)(metadata)
+    except AttributeError:
+        return None
