@@ -11,7 +11,7 @@ _Your large data processing personal assistant_
 Planchet (pronounced /plʌ̃ʃɛ/) is a data package manager suited for processing large arrays of data
 items. It supports natively reading and writing into CSV and JSONL data files
 and serving their content over a FastAPI service to clients that process the
-data. It is a tool for scientist and hackers, not production. 
+data. It is a tool for scientists and hackers, not production. 
 
 ## How it works
 
