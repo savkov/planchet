@@ -1,4 +1,4 @@
-.PHONY: all test clean build
+.PHONY: all test clean build docs
 NAME=planchet
 VERSION=$(shell git rev-parse HEAD)
 SEMVER_VERSION=$(shell git describe --abbrev=0 --tags)
@@ -57,3 +57,10 @@ tag-semver:
 push:
 	docker push $(REPO)/$(NAME):$(SEMVER_VERSION); \
 	docker push $(REPO)/$(NAME):latest;
+
+docs:
+	rm -rf docs/_build
+	sphinx-build -M html "docs/" "docs/_build"
+
+livehtml:
+	sphinx-autobuild docs docs/_build/html
