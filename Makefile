@@ -3,6 +3,8 @@ NAME=planchet
 VERSION=$(shell git rev-parse HEAD)
 SEMVER_VERSION=$(shell git describe --abbrev=0 --tags)
 REPO=quay.io/savkov
+PLANCHET_HOST?=0.0.0.0
+PLANCHET_PORT?=5005
 
 clean:
 	rm -rf .cache
@@ -19,7 +21,7 @@ install-redis:
 	docker run -d -p 6379:6379 -v data:/data --name redis quay.io/savkov/redis redis-server /etc/redis/redis.conf --requirepass ${PLANCHET_REDIS_PWD}
 
 run:
-	uvicorn app:app --reload --host 0.0.0.0 --port 5005 --workers 1
+	uvicorn app:app --reload --host $(PLANCHET_HOST) --port $(PLANCHET_PORT) --workers 1
 
 run-docker:
 	docker-compose up
