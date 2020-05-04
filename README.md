@@ -34,6 +34,9 @@ small.
 
 ![diagram](https://github.com/savkov/planchet/blob/master/img/Planchet.png)
 
+Read more about planchet on the 
+[documentation page](https://planchet.readthedocs.io/).
+
 ## Installation
 
 Planchet works in two components: a service and a client. The service is the
