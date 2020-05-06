@@ -6,7 +6,7 @@ _Your large data processing personal assistant_
 [![Test Coverage](https://api.codeclimate.com/v1/badges/4291c3334f1699a4f227/test_coverage)](https://codeclimate.com/github/savkov/planchet/test_coverage)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Documentation Status](https://readthedocs.org/projects/planchet/badge/?version=latest)](https://planchet.readthedocs.io/en/latest/?badge=latest) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-3-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-3-orange.svg?style=shield)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 ## About
