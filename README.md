@@ -1,4 +1,7 @@
 # Planchet
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 _Your large data processing personal assistant_
 
 [![CircleCI](https://circleci.com/gh/savkov/planchet.svg?style=shield)](https://circleci.com/gh/savkov/planchet)
@@ -155,3 +158,22 @@ each process manually or we can use the `parallel` tool to start them all.
 ```bash
 seq -w 0 8 | parallel python spacy_ner.py {}
 ```
+
+## Contributors ✨
+
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/mayman"><img src="https://avatars2.githubusercontent.com/u/3055905?v=4" width="100px;" alt=""/><br /><sub><b>Dilyan G.</b></sub></a><br /><a href="https://github.com/savkov/planchet/pulls?q=is%3Apr+reviewed-by%3Amayman" title="Reviewed Pull Requests">👀</a> <a href="#infra-mayman" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
+  </tr>
+</table>
+
+<!-- markdownlint-enable -->
+<!-- prettier-ignore-end -->
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
