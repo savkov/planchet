@@ -1,6 +1,6 @@
 # Planchet
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 _Your large data processing personal assistant_
 
@@ -168,6 +168,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- markdownlint-disable -->
 <table>
   <tr>
+    <td align="center"><a href="https://github.com/bodak"><img src="https://avatars3.githubusercontent.com/u/6807878?v=4" width="100px;" alt=""/><br /><sub><b>Kristian Boda</b></sub></a><br /><a href="https://github.com/savkov/planchet/pulls?q=is%3Apr+reviewed-by%3Abodak" title="Reviewed Pull Requests">👀</a></td>
     <td align="center"><a href="https://github.com/mayman"><img src="https://avatars2.githubusercontent.com/u/3055905?v=4" width="100px;" alt=""/><br /><sub><b>Dilyan G.</b></sub></a><br /><a href="https://github.com/savkov/planchet/pulls?q=is%3Apr+reviewed-by%3Amayman" title="Reviewed Pull Requests">👀</a> <a href="#infra-mayman" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
   </tr>
 </table>
