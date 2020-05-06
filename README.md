@@ -169,6 +169,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <table>
   <tr>
     <td align="center"><a href="https://github.com/bodak"><img src="https://avatars3.githubusercontent.com/u/6807878?v=4" width="100px;" alt=""/><br /><sub><b>Kristian Boda</b></sub></a><br /><a href="https://github.com/savkov/planchet/pulls?q=is%3Apr+reviewed-by%3Abodak" title="Reviewed Pull Requests">👀</a></td>
+    <td align="center"><a href="https://github.com/mayman"><img src="https://avatars2.githubusercontent.com/u/3055905?v=4" width="100px;" alt=""/><br /><sub><b>Dilyan G.</b></sub></a><br /><a href="https://github.com/savkov/planchet/pulls?q=is%3Apr+reviewed-by%3Amayman" title="Reviewed Pull Requests">👀</a> <a href="#infra-mayman" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
   </tr>
 </table>
 

@@ -13,6 +13,16 @@
       "contributions": [
         "review"
       ]
+    },
+    {
+      "login": "mayman",
+      "name": "Dilyan G.",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/3055905?v=4",
+      "profile": "https://github.com/mayman",
+      "contributions": [
+        "review",
+        "infra"
+      ]
     }
   ],
   "contributorsPerLine": 7,
