@@ -39,7 +39,8 @@ comments below.
 On the client
 ^^^^^^^^^^^^^
 
-On the client side we need to install the Planchet client and [spaCy](spacy.io).
+On the client side we need to install the Planchet client and
+`spaCy <spacy.io>`_.
 
 .. code-block:: shell
 
@@ -47,7 +48,7 @@ On the client side we need to install the Planchet client and [spaCy](spacy.io).
    python -m spacy download en_core_web_sm
    export PLANCHET_REDIS_PWD=<your-redis-password>
 
-Then we write the following script in a file called `spacy_ner.py` making sure
+Then we write the following script in a file called ``spacy_ner.py`` making sure
 you fill in the placeholders.
 
 .. code-block:: python

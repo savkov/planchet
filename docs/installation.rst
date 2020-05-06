@@ -1,7 +1,7 @@
 🖥️ Installation
 ===============
 
-Planchet works in two components: a _service_ and a _client_.
+Planchet works in two components: a *service* and a *client*.
 The service is the core that does all the work managing the data,
 while the client is a light wrapper around the
 `requests <https://requests.readthedocs.io/en/master/>`_ library
@@ -10,7 +10,7 @@ that makes accessing the service safer and more convenient.
 Service Side
 ^^^^^^^^^^^^
 
-You can use this repo and start streight away like this:
+You can use this repo and start straight away like this:
 
 .. code-block:: shell
 
