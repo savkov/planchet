@@ -1,0 +1,25 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "mayman",
+      "name": "Dilyan G.",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/3055905?v=4",
+      "profile": "https://github.com/mayman",
+      "contributions": [
+        "review",
+        "infra"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "planchet",
+  "projectOwner": "savkov",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true
+}
