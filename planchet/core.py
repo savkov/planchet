@@ -22,6 +22,16 @@ READ_WRITE = 'read-write'
 
 
 class Job:
+    """
+    Create a new Job object.
+
+    :param name: job name
+    :param reader: reader object
+    :param writer: writer object
+    :param ledger: ledger object
+    :param mode: writing mode
+    :param cont: make a repair job if True
+    """
     def __init__(self, name: str, reader: Callable, writer: Callable,
                  ledger: Redis, mode: str = READ_WRITE,
                  cont: bool = False):
@@ -37,6 +47,12 @@ class Job:
         self.restore_records(self)
 
     def serve(self, n_items: int) -> List:
+        """
+        Send `n_items` to the user.
+
+        :param n_items: number of items served
+        :return: list of items of requested size
+        """
         items: List = []
         while len(items) < n_items:
             bs = n_items - len(items)
@@ -58,6 +74,13 @@ class Job:
 
     def receive(self, items: List[Tuple[int, Union[Dict, List]]],
                 overwrite: bool):
+        """
+        Receive a list of processed items from a job, write them to output and
+        mark them as received.
+
+        :param items: processed items
+        :param overwrite: overwrite the output file
+        """
         ids = []
         data = []
         for id_, item in items:
@@ -77,6 +100,11 @@ class Job:
             self.ledger.set(self.ledger_id(id_), RECEIVED)
 
     def mark_errors(self, ids):
+        """
+        Mark the items with IDs in `ids` as errors.
+
+        :param ids: IDs of items to be marked as errors
+        """
         for id_ in ids:
             value = self.ledger.get(self.ledger_id(id_))
             if value and value.decode('utf8') == RECEIVED:
@@ -85,6 +113,10 @@ class Job:
             self.ledger.set(self.ledger_id(id_), ERROR)
 
     def restart(self):
+        """
+        Restart the job. The ledger is wiped, all items in this object are
+        cleaned and the job is set to not exhausted.
+        """
         for key in list(self.ledger.scan_iter(f'{self.name}:*')):
             self.ledger.delete(key)
         self.served = set()
@@ -92,6 +124,10 @@ class Job:
         self.exhausted = False
 
     def clean(self):
+        """
+        Cleans the job. All served but not received items are cleaned from the
+        ledger.
+        """
         served = []
         q_string = f'{self.name}:*'
         for i, key in enumerate(self.ledger.scan_iter(q_string)):
@@ -105,6 +141,11 @@ class Job:
 
     @property
     def status(self):
+        """
+        Returns the status of this job: ``COMPLETE`` or ``IN_PROGRESS``.
+
+        :return: job status
+        """
         if self.exhausted and not self.served:
             return COMPLETE
         else:
@@ -112,6 +153,12 @@ class Job:
 
     @property
     def stats(self):
+        """
+        Returns the report of this job: # items served and received, as well as
+        if the job is done.
+
+        :return: job report
+        """
         return {
             'served': len(self.served),
             'received': len(self.received),

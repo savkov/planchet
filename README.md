@@ -5,6 +5,8 @@ _Your large data processing personal assistant_
 [![Maintainability](https://api.codeclimate.com/v1/badges/4291c3334f1699a4f227/maintainability)](https://codeclimate.com/github/savkov/planchet/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/4291c3334f1699a4f227/test_coverage)](https://codeclimate.com/github/savkov/planchet/test_coverage)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Documentation Status](https://readthedocs.org/projects/planchet/badge/?version=latest)](https://planchet.readthedocs.io/en/latest/?badge=latest)
+[![Contributors](https://img.shields.io/badge/contributors-3-blue.svg?style=shield)](#contributors-)
 
 ## About
 
@@ -33,6 +35,9 @@ should be careful with your batch sizes -- keep them not too big and not too
 small.
 
 ![diagram](https://github.com/savkov/planchet/blob/master/img/Planchet.png)
+
+Read more about planchet on the 
+[documentation page](https://planchet.readthedocs.io/).
 
 ## Installation
 
@@ -151,3 +156,19 @@ each process manually or we can use the `parallel` tool to start them all.
 ```bash
 seq -w 0 8 | parallel python spacy_ner.py {}
 ```
+
+## Contributors
+
+<!-- HTML:START -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="http://sasho.io"><img src="https://avatars2.githubusercontent.com/u/1086604?v=4" width="100px;" alt=""/><br /><sub><b>Sasho Savkov</b></sub></a></td>
+    <td align="center"><a href="https://github.com/mayman"><img src="https://avatars2.githubusercontent.com/u/3055905?v=4" width="100px;" alt=""/><br /><sub><b>Dilyan G.</b></sub></a></td>
+    <td align="center"><a href="https://github.com/bodak"><img src="https://avatars3.githubusercontent.com/u/6807878?v=4" width="100px;" alt=""/><br /><sub><b>Kristian Boda</b></sub></a></td>
+  </tr>
+</table>
+<!-- markdownlint-enable -->
+<!-- prettier-ignore-end -->
+<!-- HTML:END -->

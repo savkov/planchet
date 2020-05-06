@@ -55,6 +55,17 @@ except ConnectionError:
 def scramble(job_name: str, metadata: Dict, reader_name: str,
              writer_name: str, clean_start: bool = False,
              mode: str = READ_WRITE, cont: bool = False):
+    """
+    Start a new job.
+
+    :param job_name: job name
+    :param metadata: I/O classes configuration
+    :param reader_name: class reader name
+    :param writer_name: class writer name
+    :param clean_start: clean the items before you start
+    :param mode: I/O mode
+    :param cont: start a repair job
+    """
     logging.info(util.pink(
         f'SCRAMBLING: name->{job_name}; metadata->{metadata}; '
         f'reader_name->{reader_name}; writer_name->{writer_name}; '
@@ -94,6 +105,13 @@ def scramble(job_name: str, metadata: Dict, reader_name: str,
 
 @app.post("/serve")
 def serve(job_name: str, batch_size: int = 100) -> List:
+    """
+    Serve a batch of items to the user.
+
+    :param job_name: job name
+    :param batch_size: number of items to be served in the batch
+    :return: list of items of size `batch_size`
+    """
     try:
         job = JOB_LOG[job_name]
     except KeyError:
@@ -110,6 +128,13 @@ def serve(job_name: str, batch_size: int = 100) -> List:
 @app.post("/receive")
 def receive(job_name: str, items: List[Tuple[int, Union[Dict, List]]],
             overwrite: bool):
+    """
+    Receive a batch of processed items from the user.
+
+    :param job_name: job name
+    :param items: processed items
+    :param overwrite: overwrite the output file
+    """
     size = sys.getsizeof(items)
     if size > MAX_PACKAGE_SIZE:
         msg = f'In-memory payload must be less than {MAX_PACKAGE_SIZE}; ' \
@@ -128,6 +153,12 @@ def receive(job_name: str, items: List[Tuple[int, Union[Dict, List]]],
 
 @app.post("/mark-errors")
 def mark_errors(job_name: str, ids: List[int]):
+    """
+    Mark a list of items as errors based on the IDs in `ids`.
+
+    :param job_name: job name
+    :param ids: list of IDs
+    """
     job = JOB_LOG[job_name]
     try:
         job.mark_errors(ids)
@@ -137,6 +168,11 @@ def mark_errors(job_name: str, ids: List[int]):
 
 @app.get('/delete')
 def delete(job_name: str):
+    """
+    Delete a job.
+
+    :param job_name: job name
+    """
     try:
         del JOB_LOG[job_name]
     except KeyError:
@@ -149,6 +185,11 @@ def delete(job_name: str):
 
 @app.get('/clean')
 def clean(job_name: str):
+    """
+    Remove all served but not received items from a job.
+
+    :param job_name: job name
+    """
     try:
         job = JOB_LOG[job_name]
     except KeyError:
@@ -160,6 +201,12 @@ def clean(job_name: str):
 
 @app.get("/report")
 def report(job_name: str) -> Dict:
+    """
+    Serve a report for a job
+
+    :param job_name: job name
+    :return: report
+    """
     try:
         return JOB_LOG[job_name].stats
     except KeyError:
@@ -169,6 +216,11 @@ def report(job_name: str) -> Dict:
 
 @app.get("/health")
 def health_check() -> Dict:
+    """
+    Service health check. Healthy if a live ledger can be reached.
+
+    :return: service status
+    """
     try:
         LEDGER.ping()
         status = 'Online'
