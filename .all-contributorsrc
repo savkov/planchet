@@ -1,0 +1,24 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "bodak",
+      "name": "Kristian Boda",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/6807878?v=4",
+      "profile": "https://github.com/bodak",
+      "contributions": [
+        "review"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "planchet",
+  "projectOwner": "savkov",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true
+}
