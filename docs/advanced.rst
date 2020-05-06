@@ -20,14 +20,14 @@ The data stored in Redis takes the following shapes:
 
 **Job**
 
-.. code-block::
+.. code-block:: text
 
    key -> "JOB:<job_name>"
    value -> "{'metadata': '...','reader_name': '...','writer_name': '...','mode': '...'}"
 
 **Item**
 
-.. code-block::
+.. code-block:: text
 
    key -> "<job_name>: <item_id>"
    value -> 'SERVED' or 'RECEIVED' or 'ERROR'
