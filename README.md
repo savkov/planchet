@@ -6,7 +6,7 @@ _Your large data processing personal assistant_
 [![Test Coverage](https://api.codeclimate.com/v1/badges/4291c3334f1699a4f227/test_coverage)](https://codeclimate.com/github/savkov/planchet/test_coverage)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Documentation Status](https://readthedocs.org/projects/planchet/badge/?version=latest)](https://planchet.readthedocs.io/en/latest/?badge=latest) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=shield)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-3-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 ## About
@@ -169,6 +169,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
   <tr>
     <td align="center"><a href="https://github.com/bodak"><img src="https://avatars3.githubusercontent.com/u/6807878?v=4" width="100px;" alt=""/><br /><sub><b>Kristian Boda</b></sub></a><br /><a href="https://github.com/savkov/planchet/pulls?q=is%3Apr+reviewed-by%3Abodak" title="Reviewed Pull Requests">👀</a></td>
     <td align="center"><a href="https://github.com/mayman"><img src="https://avatars2.githubusercontent.com/u/3055905?v=4" width="100px;" alt=""/><br /><sub><b>Dilyan G.</b></sub></a><br /><a href="https://github.com/savkov/planchet/pulls?q=is%3Apr+reviewed-by%3Amayman" title="Reviewed Pull Requests">👀</a> <a href="#infra-mayman" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
+    <td align="center"><a href="http://sasho.io"><img src="https://avatars2.githubusercontent.com/u/1086604?v=4" width="100px;" alt=""/><br /><sub><b>Sasho Savkov</b></sub></a><br /><a href="https://github.com/savkov/planchet/commits?author=savkov" title="Code">💻</a> <a href="https://github.com/savkov/planchet/pulls?q=is%3Apr+reviewed-by%3Asavkov" title="Reviewed Pull Requests">👀</a> <a href="#infra-savkov" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/savkov/planchet/commits?author=savkov" title="Documentation">📖</a> <a href="https://github.com/savkov/planchet/issues?q=author%3Asavkov" title="Bug reports">🐛</a> <a href="#blog-savkov" title="Blogposts">📝</a> <a href="#example-savkov" title="Examples">💡</a> <a href="#maintenance-savkov" title="Maintenance">🚧</a> <a href="https://github.com/savkov/planchet/commits?author=savkov" title="Tests">⚠️</a></td>
   </tr>
 </table>
 
