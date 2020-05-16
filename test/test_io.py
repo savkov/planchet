@@ -296,3 +296,27 @@ def test_csv_read_batch(reader, batch_size):
     items = reader(batch_size)
     n_items = batch_size if batch_size < 30 else 30
     assert len(items) == n_items
+
+
+def test_jsnl_clean():
+    file_path = 'temp.jsnl'
+    metadata = {
+        'output_file_path': file_path
+    }
+    data = [{"k1": "v5", "k2": "v6"}, {"k1": "v7", "k2": "v8"}]
+    writer = JsonlWriter(metadata)
+    writer(data)
+    writer.clean()
+    assert not os.path.isfile(file_path), 'JSONL clean not working'
+
+
+def test_csv_clean():
+    file_path = 'temp.csv'
+    metadata = {
+        'output_file_path': file_path
+    }
+    data = [{"k1": "v5", "k2": "v6"}, {"k1": "v7", "k2": "v8"}]
+    writer = CsvWriter(metadata)
+    writer(data)
+    writer.clean()
+    assert not os.path.isfile(file_path), 'CSV clean not working'

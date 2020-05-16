@@ -259,10 +259,14 @@ def test_mark_errors_receive(client, job_params, metadata):
 
 
 @pytest.mark.local
-def test_clean(client, job_params, metadata):
+@pytest.mark.parametrize(
+    'output', [True, False]
+)
+def test_clean(client, job_params, metadata, output):
     n_served = 10
     n_received = 5
     param_string = _make_param_string(job_params)
+    output_file_path = metadata['output_file_path']
     client.post(
         f'/scramble?{param_string}',
         json=metadata
@@ -276,8 +280,9 @@ def test_clean(client, job_params, metadata):
         json=items[:n_received]
     )
     assert response.status_code == 200, response.text
-    response = client.get(f'/clean?job_name={TEST_JOB_NAME}')
+    response = client.get(f'/clean?job_name={TEST_JOB_NAME}&output={output}')
     assert response.status_code == 200, response.text
+    assert (not os.path.isfile(output_file_path)) is output
     response = client.get(f'/report?job_name={TEST_JOB_NAME}')
     assert response.status_code == 200, response.text
     report = json.loads(response.text)
