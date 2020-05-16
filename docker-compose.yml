@@ -7,15 +7,15 @@ services:
     healthcheck:
       test: "exit 0"
     environment:
-      - PLANCHET_REDIS_HOST=redis
+      - PLANCHET_REDIS_HOST=redis-compose
       - PLANCHET_REDIS_PORT=6379
       - PLANCHET_REDIS_PWD=${PLANCHET_REDIS_PWD}
     depends_on:
-      redis:
+      redis-compose:
         condition: service_healthy
     volumes:
       - ./data:/data
-  redis:
+  redis-compose:
     image: quay.io/savkov/redis
     healthcheck:
       test: "exit 0"
