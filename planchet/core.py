@@ -123,10 +123,12 @@ class Job:
         self.received = set()
         self.exhausted = False
 
-    def clean(self):
+    def clean(self, output: bool = True):
         """
         Cleans the job. All served but not received items are cleaned from the
         ledger.
+
+        :param output: remove the output file for this job
         """
         served = []
         q_string = f'{self.name}:*'
@@ -138,6 +140,8 @@ class Job:
             self.ledger.delete(key)
             _, id_ = key.decode('utf8').split(':', 1)
             self.served.discard(int(id_))
+        if output:
+            self.writer.clean()
 
     @property
     def status(self):

@@ -184,11 +184,12 @@ def delete(job_name: str):
 
 
 @app.get('/clean')
-def clean(job_name: str):
+def clean(job_name: str, output: bool = True):
     """
     Remove all served but not received items from a job.
 
     :param job_name: job name
+    :param output: clean output file(s) associated with the job
     """
     try:
         job = JOB_LOG[job_name]
@@ -196,7 +197,16 @@ def clean(job_name: str):
         msg = f'Could not find a job name "{job_name}"'
         logging.info(util.pink(msg))
         raise HTTPException(400, msg)
-    job.clean()
+    try:
+        job.clean(output=output)
+    except FileNotFoundError:
+        msg = f'Could not find a output file for job "{job_name}"'
+        logging.info(util.pink(msg))
+        raise HTTPException(400, msg)
+    except AttributeError:
+        msg = f'No cleaning method found for writer type "{type(job.writer)}"'
+        logging.info(util.pink(msg))
+        raise HTTPException(400, msg)
 
 
 @app.get("/report")
