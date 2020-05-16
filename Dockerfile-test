@@ -1,6 +1,10 @@
 FROM quay.io/savkov/alpine-pandas
 MAINTAINER "Sasho Savkov" <me@sasho.io>
 
+ARG CC_TEST_REPORTER_ID
+
+ENV CC_TEST_REPORTER_ID=$CC_TEST_REPORTER_ID
+
 # copying requirements
 COPY requirements.txt /opt/project/
 COPY test_requirements.txt /opt/project/
@@ -20,4 +24,4 @@ RUN cp /opt/project/test/data/client_input_file.csv /data/.test/
 # set working directory
 WORKDIR /opt/project
 
-CMD ["pytest"]
+CMD ["sh", "test-coverage.sh"]

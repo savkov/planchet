@@ -30,7 +30,8 @@ services:
       - PLANCHET_REDIS_PWD=${PLANCHET_REDIS_PWD}
       - PLANCHET_HOST=planchet
       - PLANCHET_PORT=5005
-    command: ["pytest", "-v"]
+      - CC_TEST_REPORTER_ID=${CC_TEST_REPORTER_ID}
+    command: ["sh", "test-coverage.sh"]
   rediscompose:
     image: quay.io/savkov/redis
     healthcheck:

@@ -72,12 +72,6 @@ workflows:
         <<: *not_master
     - test:
         context: sasho
-        <<: *not_master
-    - test-coverage:
-        context: sasho
-        requires:
-        - prepare_env
-        <<: *only_master
     - push:
         context: sasho
         <<: *only_tags
@@ -122,18 +116,6 @@ jobs:
       - run: |
           pip install --user pypi-cli twine wheel
           if python ~/planchet/check_release.py; then make release; else echo "Version already released"; fi
-  test-coverage:
-    <<: *prelude_docker
-    steps:
-    - checkout
-    - *restore_venv
-    - *setup_code_climate
-    - run: |
-        source .venv/bin/activate
-        pip install coverage
-        pip install -r test_requirements.txt
-        make test-coverage
-    - *upload_code_climate
   lint:
     <<: *prelude_docker
     steps:
