@@ -22,7 +22,7 @@ logging.info(util.blue('PLANCHET IS STARTING!'))
 
 def _load_jobs(ledger) -> Dict:
     jobs: Dict = {}
-    for job_key in ledger.scan_iter(f'JOB:*'):
+    for job_key in ledger.scan_iter('JOB:*'):
         job_name: str = job_key.decode('utf8').split(':', 1)[1]
         try:
             jobs[job_name] = Job.restore_job(job_name, job_key, ledger)
