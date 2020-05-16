@@ -24,4 +24,9 @@ RUN cp /opt/project/test/data/client_input_file.csv /data/.test/
 # set working directory
 WORKDIR /opt/project
 
+# set up code climate test reporter
+RUN apk add curl git && \
+  curl -L -o cc-test-reporter https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 && \
+  chmod +x cc-test-reporter
+
 CMD ["sh", "test-coverage.sh"]
