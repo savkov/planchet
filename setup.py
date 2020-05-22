@@ -8,7 +8,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='planchet',
-    version='0.3.1',
+    version='0.3.2',
     py_modules=['planchet.client', 'planchet.util'],
     zip_safe=True,
     include_package_data=False,
