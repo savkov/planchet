@@ -128,7 +128,8 @@ def test_scramble_cont_job(client, metadata_client):
         'reader_name': 'CsvReader',
         'writer_name': 'CsvWriter',
         'clean_start': 'false',
-        'cont': False
+        'cont': False,
+        'force_overwrite': 'true'
     }
     param_string = _make_param_string(job_params)
     response = client.post(
@@ -299,8 +300,9 @@ def test_purge(client, job_params, metadata, output):
     n_served = 10
     n_received = 5
     param_string = _make_param_string(job_params)
+    output_file_path = metadata["output_file_path"]
     for i in range(10):
-        output_file_path = f'{metadata["output_file_path"]}.{i}'
+        metadata["output_file_path"] = f'{output_file_path}.{i}'
         client.post(
             f'/scramble?{param_string}',
             json=metadata
@@ -316,9 +318,37 @@ def test_purge(client, job_params, metadata, output):
         assert response.status_code == 200, response.text
     response = client.get(f'/purge?output={output}')
     assert response.status_code == 200, response.text
-    for fp in glob.glob(f'{metadata["output_file_path"]}*'):
+    for fp in glob.glob(f'{output_file_path}*'):
         assert (not os.path.isfile(fp)) is output
         response = client.get(f'/report?job_name={TEST_JOB_NAME}')
         assert response.status_code == 200, response.text
         report = json.loads(response.text)
         assert report == {}
+
+
+@pytest.mark.local
+def test_output_registry(client, job_params, metadata):
+    job_params['force_overwrite'] = False
+    param_string = _make_param_string(job_params)
+    print(metadata)
+    client.post(
+        f'/scramble?{param_string}',
+        json=metadata
+    )
+    response = client.get(f'/report?job_name={TEST_JOB_NAME}')
+    assert response.status_code == 200, response.text
+    job_params['job_name'] = 'new_original_job_1234'
+    param_string = _make_param_string(job_params)
+    response = client.post(
+        f'/scramble?{param_string}',
+        json=metadata
+    )
+    assert response.status_code == 400, 'Output registry did not block creating a new job'
+    client.get(f'/purge')
+    job_params['job_name'] = 'new_original_job_986'
+    param_string = _make_param_string(job_params)
+    response = client.post(
+        f'/scramble?{param_string}',
+        json=metadata
+    )
+    assert response.status_code == 200, response.text

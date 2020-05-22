@@ -1,4 +1,5 @@
 import os
+import random
 
 from fastapi.testclient import TestClient
 import pytest
@@ -24,7 +25,8 @@ def job_params():
         'job_name': TEST_JOB_NAME,
         'reader_name': 'CsvReader',
         'writer_name': 'CsvWriter',
-        'clean_start': 'false'
+        'clean_start': 'false',
+        'force_overwrite': 'true'
     }
 
 
@@ -46,9 +48,9 @@ def input_fp_client(data):
     os.remove(fp)
 
 
-@pytest.fixture()
+@pytest.fixture(scope='function')
 def output_fp():
-    fp = 'output_file.csv'
+    fp = f'output_file.{str(random.randint(0, 1000))}.csv'
     yield fp
     try:
         os.remove(fp)
@@ -58,7 +60,7 @@ def output_fp():
 
 @pytest.fixture()
 def output_fp_client():
-    fp = '/data/client_output_file.csv'
+    fp = f'/data/client_output_file.{str(random.randint(0, 1000))}.csv'
     yield fp
     try:
         os.remove(fp)
@@ -126,7 +128,7 @@ def reader(input_fp):
     return CsvReader(metadata)
 
 
-@pytest.fixture()
+@pytest.fixture(scope='function')
 def writer(output_fp):
     metadata = {'output_file_path': output_fp}
     return CsvWriter(metadata)
