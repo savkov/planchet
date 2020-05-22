@@ -336,7 +336,7 @@ def test_output_registry(client, job_params, metadata):
     )
     response = client.get(f'/report?job_name={TEST_JOB_NAME}')
     assert response.status_code == 200, response.text
-    job_params['job_name'] = 'new_original_job_1234'
+    job_params['job_name'] = 'new_original_job_12342345345'
     param_string = _make_param_string(job_params)
     response = client.post(
         f'/scramble?{param_string}',
@@ -344,7 +344,7 @@ def test_output_registry(client, job_params, metadata):
     )
     assert response.status_code == 400, 'Output registry did not block creating a new job'
     client.get(f'/purge')
-    job_params['job_name'] = 'new_original_job_986'
+    job_params['job_name'] = 'new_original_job_98693458'
     param_string = _make_param_string(job_params)
     response = client.post(
         f'/scramble?{param_string}',

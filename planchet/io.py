@@ -107,7 +107,10 @@ class CsvWriter:
         self.has_header = overwrite or not exists
 
     def clean(self):
-        os.remove(self.file_path)
+        try:
+            os.remove(self.file_path)
+        except FileNotFoundError:
+            pass
 
     def __call__(self, data: List):
         if not data:
@@ -133,7 +136,10 @@ class JsonlWriter:
         self.mode = 'w' if overwrite else 'a'
 
     def clean(self):
-        os.remove(self.file_path)
+        try:
+            os.remove(self.file_path)
+        except FileNotFoundError:
+            pass
 
     def __call__(self, data: List):
         with open(self.file_path, mode=self.mode) as fh:
