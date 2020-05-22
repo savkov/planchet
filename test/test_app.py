@@ -1,3 +1,4 @@
+import glob
 import json
 import os
 
@@ -289,3 +290,35 @@ def test_clean(client, job_params, metadata, output):
     assert report['served'] == 0
     assert report['received'] == n_received
 
+
+@pytest.mark.local
+@pytest.mark.parametrize(
+    'output', [True, False]
+)
+def test_purge(client, job_params, metadata, output):
+    n_served = 10
+    n_received = 5
+    param_string = _make_param_string(job_params)
+    for i in range(10):
+        output_file_path = f'{metadata["output_file_path"]}.{i}'
+        client.post(
+            f'/scramble?{param_string}',
+            json=metadata
+        )
+        items = json.loads(
+            client.post(f'/serve?job_name={TEST_JOB_NAME}&'
+                        f'batch_size={n_served}').text
+        )
+        response = client.post(
+            f'/receive?job_name={TEST_JOB_NAME}&overwrite=false',
+            json=items[:n_received]
+        )
+        assert response.status_code == 200, response.text
+    response = client.get(f'/purge?output={output}')
+    assert response.status_code == 200, response.text
+    for fp in glob.glob(f'{metadata["output_file_path"]}*'):
+        assert (not os.path.isfile(fp)) is output
+        response = client.get(f'/report?job_name={TEST_JOB_NAME}')
+        assert response.status_code == 200, response.text
+        report = json.loads(response.text)
+        assert report == {}
