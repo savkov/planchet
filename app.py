@@ -209,6 +209,18 @@ def clean(job_name: str, output: bool = True):
         raise HTTPException(400, msg)
 
 
+@app.get('/purge')
+def purge(output: bool = False):
+    """
+    Purge all jobs, items and optionally output files.
+
+    :param: output: purge output files if True
+    """
+    for name, job in list(JOB_LOG.items()):
+        job.clean(output)
+        del JOB_LOG[name]
+
+
 @app.get("/report")
 def report(job_name: str) -> Dict:
     """
