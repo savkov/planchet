@@ -19,6 +19,8 @@ app = FastAPI()
 
 logging.info(util.blue('PLANCHET IS STARTING!'))
 
+OUTPUT_REGISTRY = set()
+
 
 def _load_jobs(ledger) -> Dict:
     jobs: Dict = {}
@@ -26,6 +28,7 @@ def _load_jobs(ledger) -> Dict:
         job_name: str = job_key.decode('utf8').split(':', 1)[1]
         try:
             jobs[job_name] = Job.restore_job(job_name, job_key, ledger)
+            OUTPUT_REGISTRY.add(jobs[job_name].writer.file_path)
         except json.JSONDecodeError:
             logging.error(f'Could not restore job: {job_key}')
         except FileNotFoundError as e:
@@ -54,7 +57,8 @@ except ConnectionError:
 @app.post("/scramble")
 def scramble(job_name: str, metadata: Dict, reader_name: str,
              writer_name: str, clean_start: bool = False,
-             mode: str = READ_WRITE, cont: bool = False):
+             mode: str = READ_WRITE, cont: bool = False,
+             force_overwrite: bool = False):
     """
     Start a new job.
 
@@ -65,6 +69,7 @@ def scramble(job_name: str, metadata: Dict, reader_name: str,
     :param clean_start: clean the items before you start
     :param mode: I/O mode
     :param cont: start a repair job
+    :param force_overwrite: force overwrite of the
     """
     logging.info(util.pink(
         f'SCRAMBLING: name->{job_name}; metadata->{metadata}; '
@@ -81,6 +86,9 @@ def scramble(job_name: str, metadata: Dict, reader_name: str,
     except PermissionError as e:
         logging.error(e)
         raise HTTPException(status_code=400, detail=str(e))
+    if not force_overwrite and writer and writer.file_path in OUTPUT_REGISTRY:
+        msg = f'Output path not allowed `{writer.file_path}`.'
+        raise HTTPException(status_code=400, detail=msg)
     existing_job = LEDGER.get(f'JOB:{job_name}')
     # trying to re-create an existing job
     if existing_job and (not clean_start and not cont):
@@ -97,6 +105,8 @@ def scramble(job_name: str, metadata: Dict, reader_name: str,
     if clean_start:
         new_job.restart()
     JOB_LOG[job_name] = new_job
+    if writer:
+        OUTPUT_REGISTRY.add(writer.file_path)
     # TODO: move this in a method inside the Job class and call here
     LEDGER.set(f'JOB:{job_name}', json.dumps({
         'metadata': metadata, 'reader_name': reader_name,
@@ -199,6 +209,7 @@ def clean(job_name: str, output: bool = True):
         raise HTTPException(400, msg)
     try:
         job.clean(output=output)
+        OUTPUT_REGISTRY.discard(job.writer.file_path)
     except FileNotFoundError:
         msg = f'Could not find a output file for job "{job_name}"'
         logging.info(util.pink(msg))
@@ -219,6 +230,7 @@ def purge(output: bool = False):
     for name, job in list(JOB_LOG.items()):
         job.clean(output)
         del JOB_LOG[name]
+        OUTPUT_REGISTRY.discard(job.writer.file_path)
 
 
 @app.get("/report")
