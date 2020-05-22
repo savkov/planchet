@@ -330,7 +330,6 @@ def test_purge(client, job_params, metadata, output):
 def test_output_registry(client, job_params, metadata):
     job_params['force_overwrite'] = False
     param_string = _make_param_string(job_params)
-    print(metadata)
     client.post(
         f'/scramble?{param_string}',
         json=metadata

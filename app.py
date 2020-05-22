@@ -86,7 +86,6 @@ def scramble(job_name: str, metadata: Dict, reader_name: str,
     except PermissionError as e:
         logging.error(e)
         raise HTTPException(status_code=400, detail=str(e))
-    print(OUTPUT_REGISTRY)
     if not force_overwrite and writer and writer.file_path in OUTPUT_REGISTRY:
         msg = f'Output path not allowed `{writer.file_path}`.'
         raise HTTPException(status_code=400, detail=msg)
