@@ -8,7 +8,9 @@ from redis import Redis
 from redis.exceptions import ConnectionError
 
 from planchet.core import Job, COMPLETE, READ_ONLY, WRITE_ONLY, READ_WRITE
-from planchet.config import REDIS_HOST, REDIS_PORT, REDIS_PWD, MAX_PACKAGE_SIZE, MASTER_TOKEN
+from planchet.config import (
+    REDIS_HOST, REDIS_PORT, REDIS_PWD, MAX_PACKAGE_SIZE, MASTER_TOKEN
+)
 import planchet.io as io
 import planchet.util as util
 
@@ -156,7 +158,8 @@ def scramble(job_name: str, metadata: Dict, reader_name: str,
 
 
 @app.post("/serve")
-def serve(job_name: str, batch_size: int = 100, token: Union[str, None] = None) -> List:
+def serve(job_name: str, batch_size: int = 100,
+          token: Union[str, None] = None) -> List:
     """
     Serve a batch of items to the user.
 
