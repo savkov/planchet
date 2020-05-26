@@ -27,77 +27,77 @@ def requests_retry_session(
 
 # COLORS
 
-def red(s):
+def red(s):  # pragma: no cover
     return '\033[91m' + str(s) + '\033[0m'
 
 
-def yellow(s):
+def yellow(s):  # pragma: no cover
     return '\033[93m' + str(s) + '\033[0m'
 
 
-def green(s):
+def green(s):  # pragma: no cover
     return '\033[92m' + str(s) + '\033[0m'
 
 
-def blue(s):
+def blue(s):  # pragma: no cover
     return '\033[94m' + str(s) + '\033[0m'
 
 
-def pink(s):
+def pink(s):  # pragma: no cover
     return '\033[95m' + str(s) + '\033[0m'
 
 
-def lightblue(s):
+def lightblue(s):  # pragma: no cover
     return '\033[96m' + str(s) + '\033[0m'
 
 
-def white(s):
+def white(s):  # pragma: no cover
     return '\033[97m' + str(s) + '\033[0m'
 
 
-def underline(s):
+def underline(s):  # pragma: no cover
     return '\033[4m' + str(s) + '\033[0m'
 
 
-def bold(s):
+def bold(s):  # pragma: no cover
     return '\033[1m' + str(s) + '\033[0m'
 
 
-def light(s):
+def light(s):  # pragma: no cover
     return '\033[2m' + str(s) + '\033[0m'
 
 
-def flash(s):
+def flash(s):  # pragma: no cover
     return '\033[5m' + str(s) + '\033[0m'
 
 
-def orangefill(s):
+def orangefill(s):  # pragma: no cover
     return '\033[100m' + str(s) + '\033[0m'
 
 
-def redfill(s):
+def redfill(s):  # pragma: no cover
     return '\033[101m' + str(s) + '\033[0m'
 
 
-def greenfill(s):
+def greenfill(s):  # pragma: no cover
     return '\033[102m' + str(s) + '\033[0m'
 
 
-def yellowfill(s):
+def yellowfill(s):  # pragma: no cover
     return '\033[103m' + str(s) + '\033[0m'
 
 
-def bluefill(s):
+def bluefill(s):  # pragma: no cover
     return '\033[104m' + str(s) + '\033[0m'
 
 
-def pinkfill(s):
+def pinkfill(s):  # pragma: no cover
     return '\033[105m' + str(s) + '\033[0m'
 
 
-def lightbluefill(s):
+def lightbluefill(s):  # pragma: no cover
     return '\033[106m' + str(s) + '\033[0m'
 
 
-def whitefill(s):
+def whitefill(s):  # pragma: no cover
     return '\033[107m' + str(s) + '\033[0m'

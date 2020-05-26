@@ -351,3 +351,44 @@ def test_output_registry(client, job_params, metadata):
         json=metadata
     )
     assert response.status_code == 200, response.text
+
+
+@pytest.mark.local
+def test_authentication_token(client, job_params, metadata):
+    job_name = 'token-job-name'
+    token = 'mysecrettoken'
+    job_params['token'] = token
+    job_params['job_name'] = job_name
+    param_string = _make_param_string(job_params)
+    # spin up a job with a token
+    response = client.post(
+        f'/scramble?{param_string}',
+        json=metadata
+    )
+    assert response.status_code == 200, response.text
+    items = json.loads(
+        client.post(f'/serve?job_name={job_name}&token={token}&'
+                    f'batch_size=10').text
+    )
+    assert items
+    response = client.post(
+        f'/serve?job_name={job_name}&token={token}&batch_size=10'
+    )
+    assert response.status_code == 403, response.text
+
+
+@pytest.mark.local
+def test_spurious_authentication_token(client, job_params, metadata):
+    param_string = _make_param_string(job_params)
+    # spin up a job with a token
+    response = client.post(
+        f'/scramble?{param_string}',
+        json=metadata
+    )
+    assert response.status_code == 200, response.text
+    # try to get served with some random token
+    items = json.loads(
+        client.post(f'/serve?job_name={TEST_JOB_NAME}&token=random-token&'
+                    f'batch_size=10').text
+    )
+    assert items
