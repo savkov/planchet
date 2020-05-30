@@ -8,15 +8,19 @@ import fakeredis
 from planchet.core import Job, READ_ONLY, WRITE_ONLY
 from planchet.io import CsvReader, CsvWriter
 from planchet.client import PlanchetClient
-from planchet.config import REDIS_HOST, REDIS_PORT, REDIS_PWD
-from .const import TEST_JOB_NAME, PLANCHET_HOST, PLANCHET_PORT
+from planchet.config import REDIS_HOST, REDIS_PORT, REDIS_PWD, MASTER_TOKEN
+from .const import (
+    TEST_JOB_NAME, TOKEN_TEST_JOB_NAME, PLANCHET_HOST, PLANCHET_PORT
+)
 from app import app, LEDGER
 
 
 @pytest.fixture(scope='session')
 def planchet_client():
     url = f'http://{PLANCHET_HOST}:{PLANCHET_PORT}'
-    return PlanchetClient(url)
+    client = PlanchetClient(url)
+    yield client
+    client.purge_server(master_token=MASTER_TOKEN)
 
 
 @pytest.fixture()
@@ -27,6 +31,18 @@ def job_params():
         'writer_name': 'CsvWriter',
         'clean_start': 'false',
         'force_overwrite': 'true'
+    }
+
+
+@pytest.fixture()
+def token_job_params():
+    return {
+        'job_name': f'token-{TEST_JOB_NAME}',
+        'reader_name': 'CsvReader',
+        'writer_name': 'CsvWriter',
+        'clean_start': 'false',
+        'force_overwrite': 'true',
+        'token': 'some-token'
     }
 
 
@@ -80,7 +96,10 @@ def metadata(input_fp, output_fp):
 
 @pytest.fixture()
 def metadata_client(input_fp_client, output_fp_client):
-    return {'input_file_path': input_fp_client, 'output_file_path': output_fp_client}
+    return {
+        'input_file_path': input_fp_client,
+        'output_file_path': output_fp_client
+    }
 
 
 @pytest.fixture(scope='function')
@@ -101,6 +120,9 @@ def client():
     LEDGER.delete(f'JOB:{TEST_JOB_NAME}')
     for k in list(LEDGER.scan_iter(f'{TEST_JOB_NAME}:*')):
         LEDGER.delete(k)
+    LEDGER.delete(f'JOB:{TOKEN_TEST_JOB_NAME}')
+    for k in list(LEDGER.scan_iter(f'{TOKEN_TEST_JOB_NAME}:*')):
+        LEDGER.delete(k)
 
 
 @pytest.fixture(scope='function')
@@ -118,6 +140,9 @@ def live_ledger():
     LEDGER.delete(f'JOB:{TEST_JOB_NAME}')
     for key in list(LEDGER.scan_iter(f'{TEST_JOB_NAME}:*')):
         LEDGER.delete(key)
+    LEDGER.delete(f'JOB:{TOKEN_TEST_JOB_NAME}')
+    for k in list(LEDGER.scan_iter(f'{TOKEN_TEST_JOB_NAME}:*')):
+        LEDGER.delete(k)
 
 
 @pytest.fixture()

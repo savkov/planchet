@@ -354,12 +354,10 @@ def test_output_registry(client, job_params, metadata):
 
 
 @pytest.mark.local
-def test_authentication_token(client, job_params, metadata):
-    job_name = 'token-job-name'
-    token = 'mysecrettoken'
-    job_params['token'] = token
-    job_params['job_name'] = job_name
-    param_string = _make_param_string(job_params)
+def test_authentication_token(client, token_job_params, metadata):
+    job_name = token_job_params['job_name']
+    token = token_job_params['token']
+    param_string = _make_param_string(token_job_params)
     # spin up a job with a token
     response = client.post(
         f'/scramble?{param_string}',
@@ -372,7 +370,7 @@ def test_authentication_token(client, job_params, metadata):
     )
     assert items
     response = client.post(
-        f'/serve?job_name={job_name}&token={token}&batch_size=10'
+        f'/serve?job_name={job_name}&token=wrong-token&batch_size=10'
     )
     assert response.status_code == 403, response.text
 

@@ -32,6 +32,13 @@ The data stored in Redis takes the following shapes:
    key -> "<job_name>: <item_id>"
    value -> 'SERVED' or 'RECEIVED' or 'ERROR'
 
+**Token**
+
+.. code-block:: text
+
+   key -> "TOKEN:<job_name>"
+   value -> '<token>'
+
 
 Requests and batching
 ^^^^^^^^^^^^^^^^^^^^^

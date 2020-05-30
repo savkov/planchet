@@ -26,6 +26,7 @@ setting up a job:
 - `clean_start`: restarts the job if it exists.
 - `mode`: I/O mode for the job. Possible values: ``read``, ``write``, ``read-write``.
 - `cont`: if true, resets the iterator of the reader and allows to serve all incomplete items again.
+- `token`: if used, the job will require an authentication token
 
 Now that we know what the parameters of a job are, let's consider the scenarios
 we mentioned above.
