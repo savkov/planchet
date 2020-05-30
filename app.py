@@ -33,7 +33,11 @@ def _add_token(job_name: str, ledger: Redis, token: str):
 
 def _get_token(job_name: str, ledger: Redis) -> str:
     token = ledger.get(f'TOKEN:{job_name}')
-    return token
+    return token.decode('utf8') if token else token
+
+
+def _remove_token(job_name: str, ledger: Redis):
+    ledger.delete(f'TOKEN:{job_name}')
 
 
 def _authenticate(job_name: str, ledger: Redis, token: str):
@@ -179,7 +183,8 @@ def serve(job_name: str, batch_size: int = 100,
         raise HTTPException(status_code=400, detail=msg)
     if job.mode == WRITE_ONLY:
         raise HTTPException(400, 'Trying to read from a write-only job')
-    return job.serve(batch_size)
+    items = job.serve(batch_size)
+    return items
 
 
 @app.post("/receive")
@@ -264,6 +269,7 @@ def clean(job_name: str, output: bool = True, token: Union[str, None] = None):
     try:
         job.clean(output=output)
         OUTPUT_REGISTRY.discard(job.writer.file_path)
+        _remove_token(job_name, LEDGER)
     except FileNotFoundError:
         msg = f'Could not find a output file for job "{job_name}"'
         logging.info(util.pink(msg))
