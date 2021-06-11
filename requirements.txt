@@ -3,4 +3,4 @@ pandas==1.0.3
 redis==3.4.1
 requests==2.23.0
 uvicorn==0.11.3
-websockets==8.1
+websockets==9.1
